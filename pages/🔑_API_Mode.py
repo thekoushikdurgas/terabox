@@ -54,7 +54,7 @@ with col1:
     if st.button("🎯 Use Unofficial Mode", type="secondary"):
         st.session_state.api_mode = 'unofficial'
         st.success("✅ Switched to Unofficial Mode")
-        st.rerun()
+        # Mode switched - UI will update automatically
 
 with col2:
     st.header("🏢 Official API Mode")
@@ -81,7 +81,7 @@ with col2:
     if st.button("🏢 Use Official API Mode", type="primary"):
         st.session_state.api_mode = 'official'
         st.success("✅ Switched to Official API Mode")
-        st.rerun()
+        # Mode switched - UI will update automatically
 
 # Display current mode
 st.markdown("---")
@@ -155,7 +155,7 @@ if st.session_state.api_mode == 'official':
                 )
                 st.session_state.credentials_configured = True
                 st.success("✅ Credentials saved successfully!")
-                st.rerun()
+                # Credentials saved - UI will update automatically
             else:
                 st.error("❌ Please fill in all credential fields")
     
@@ -219,7 +219,7 @@ if st.session_state.api_mode == 'official':
                             if result.get('status') == 'success':
                                 st.success("✅ Authentication successful!")
                                 st.balloons()
-                                st.rerun()
+                                # Authentication successful - UI will update automatically
                             else:
                                 st.error(f"❌ Authentication failed: {result.get('message')}")
                         else:
@@ -259,7 +259,7 @@ if st.session_state.api_mode == 'official':
                             if poll_result.get('status') == 'success':
                                 st.success("✅ Authorization successful!")
                                 st.balloons()
-                                st.rerun()
+                                # Authorization successful - UI will update automatically
                             elif poll_result.get('status') == 'pending':
                                 st.info("⏳ Waiting for user authorization...")
                             else:

@@ -4,6 +4,39 @@ Based on the terabox-downloader PyPI package approach but integrated with TeraDL
 
 This module provides cookie-based authentication similar to the terabox-downloader package
 but with enhanced features and integration with our existing TeraDL system.
+
+Cookie Authentication Strategy:
+- Uses browser session cookies to authenticate with TeraBox
+- Provides middle ground between scraping and full API integration
+- Leverages existing user sessions for reliable access
+- Maintains session state for consistent file access
+
+Key Features:
+- Session cookie validation and management
+- Direct download link generation
+- Progress tracking for large downloads
+- Multiple retry strategies for reliability
+- Comprehensive error handling and recovery
+- File metadata extraction and processing
+
+Architecture Components:
+- TeraBoxCookieAPI: Main cookie-based client class
+- Cookie Parser: Handles various cookie formats and validation
+- Session Manager: Maintains HTTP session with cookie authentication
+- Error Handler: Comprehensive error categorization and recovery
+- Progress Tracker: Real-time download progress monitoring
+
+Cookie Format Support:
+- Standard cookie strings (name=value; name2=value2)
+- Browser export formats (tabular, tab-separated)
+- Line-by-line format (one cookie per line)
+- Auto-detection of cookie format types
+
+Security Considerations:
+- Cookies contain sensitive session information
+- Proper validation prevents invalid/expired cookies
+- Session timeout handling for expired cookies
+- Secure cookie storage and transmission
 """
 
 import requests
@@ -16,35 +49,115 @@ from urllib.parse import urlparse, parse_qs
 from utils.config import log_error, log_info, get_default_download_path
 
 class TeraBoxCookieAPI:
-    """Cookie-based TeraBox API client similar to terabox-downloader package"""
+    """
+    Cookie-based TeraBox API client similar to terabox-downloader package
+    
+    This class provides authenticated access to TeraBox using browser session cookies,
+    offering a balance between reliability and ease of use without requiring API registration.
+    
+    Authentication Strategy:
+    - Uses browser session cookies for authentication
+    - Maintains session state for consistent access
+    - Handles cookie validation and expiration
+    - Provides direct access to TeraBox APIs
+    
+    Key Capabilities:
+    - Direct download link generation
+    - File metadata extraction and processing
+    - Progress tracking for downloads
+    - Multiple file processing support
+    - Comprehensive error handling and recovery
+    
+    Session Management:
+    - HTTP session with cookie-based authentication
+    - Modern browser header emulation
+    - Security headers for CORS compliance
+    - Connection reuse for performance
+    """
     
     def __init__(self, cookie: str = None):
+        """
+        Initialize Cookie API client with session management
+        
+        Args:
+            cookie: TeraBox session cookie string
+            
+        Initialization Process:
+        1. Set up HTTP session with modern browser headers
+        2. Configure cookie authentication if provided
+        3. Prepare security headers for TeraBox compatibility
+        4. Log initialization status for debugging
+        """
+        log_info("Initializing TeraBoxCookieAPI client")
+        
+        # Cookie Configuration
         self.cookie = cookie
+        if cookie:
+            log_info(f"Cookie provided - Length: {len(cookie)} characters")
+        else:
+            log_info("No cookie provided - will need to be set before use")
+        
+        # HTTP Session Initialization
+        # Purpose: Create persistent session for cookie-based requests
+        # Benefits: Connection reuse, cookie persistence, header consistency
         self.session = requests.Session()
+        log_info("HTTP session created for cookie-based authentication")
+        
+        # Modern Browser Headers
+        # Purpose: Emulate real browser behavior to avoid detection
+        # Strategy: Use Chrome headers with modern security policies
+        # Security: Include Sec-Fetch headers for CORS compliance
         self.base_headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'DNT': '1',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1',
-            'Sec-Fetch-Dest': 'document',
-            'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-Site': 'none',
-            'Sec-Fetch-User': '?1',
-            'Cache-Control': 'max-age=0',
+            'Accept-Language': 'en-US,en;q=0.9',  # English preference
+            'Accept-Encoding': 'gzip, deflate, br',  # Modern compression
+            'DNT': '1',  # Do Not Track header
+            'Connection': 'keep-alive',  # Connection reuse
+            'Upgrade-Insecure-Requests': '1',  # HTTPS preference
+            'Sec-Fetch-Dest': 'document',  # Security policy
+            'Sec-Fetch-Mode': 'navigate',  # Navigation mode
+            'Sec-Fetch-Site': 'none',  # Direct navigation
+            'Sec-Fetch-User': '?1',  # User-initiated
+            'Cache-Control': 'max-age=0',  # Force fresh requests
         }
         
+        log_info("Browser headers configured for TeraBox compatibility")
+        
+        # Session Configuration
+        # Purpose: Apply headers and cookie to session
+        # Strategy: Configure session once, reuse for all requests
         if self.cookie:
             self.session.headers.update(self.base_headers)
             self.session.headers['Cookie'] = self.cookie
+            log_info("Session configured with cookie authentication")
+        else:
+            log_info("Session configured without cookie - authentication required before use")
     
     def set_cookie(self, cookie: str):
-        """Set or update the TeraBox cookie"""
+        """
+        Set or update the TeraBox session cookie
+        
+        Args:
+            cookie: New TeraBox session cookie string
+            
+        Process:
+        1. Update instance cookie variable
+        2. Update session headers for immediate effect
+        3. Log update for audit trail
+        
+        Security Note: Cookie length logged for debugging, content not logged for security
+        """
+        log_info(f"Updating TeraBox cookie - Previous length: {len(self.cookie) if self.cookie else 0}, New length: {len(cookie)}")
+        
+        # Update instance variable
         self.cookie = cookie
+        
+        # Update session headers for immediate effect
+        # Purpose: Ensure all subsequent requests use new cookie
         self.session.headers['Cookie'] = cookie
-        log_info("Cookie updated successfully")
+        
+        log_info("Cookie update completed - Session headers updated successfully")
     
     def validate_cookie(self) -> Dict[str, Any]:
         """Validate if the current cookie is working with improved error handling and retry logic"""

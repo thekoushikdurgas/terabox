@@ -501,25 +501,25 @@ with col1:
     if st.button("🎯 Unofficial", type="secondary"):
         st.session_state.api_mode = 'unofficial'
         st.success("Switched to Unofficial!")
-        st.rerun()
+        # Mode switched - UI will update automatically
 
 with col2:
     if st.button("🍪 Cookie", type="secondary"):
         st.session_state.api_mode = 'cookie'
         st.success("Switched to Cookie!")
-        st.rerun()
+        # Mode switched - UI will update automatically
 
 with col3:
     if st.button("🏢 Official", type="secondary"):
         st.session_state.api_mode = 'official'
         st.success("Switched to Official!")
-        st.rerun()
+        # Mode switched - UI will update automatically
 
 with col4:
     if st.button("💳 RapidAPI", type="secondary"):
         st.session_state.api_mode = 'rapidapi'
         st.success("Switched to RapidAPI!")
-        st.rerun()
+        # Mode switched - UI will update automatically
 
 # Footer with summary
 st.markdown("---")

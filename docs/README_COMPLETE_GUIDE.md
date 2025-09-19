@@ -7,18 +7,21 @@ The ultimate TeraBox downloader with **three different access methods** - choose
 ## 🎯 Three Ways to Access TeraBox
 
 ### 🎪 Unofficial Mode - Quick & Simple
+
 - **No setup required** - works immediately
 - **No account needed** - maximum privacy
 - **Share links only** - perfect for occasional downloads
 - **Free forever** - no costs or limits
 
 ### 🍪 Cookie Mode - Reliable & Fast  
+
 - **Session-based** - uses your TeraBox login
 - **Direct downloads** - reliable file access
 - **Progress tracking** - advanced download features
 - **Easy setup** - just copy browser cookie
 
 ### 🏢 Official API - Enterprise Grade
+
 - **OAuth 2.0** - official authentication
 - **Full features** - complete file management
 - **Business ready** - enterprise support
@@ -27,6 +30,7 @@ The ultimate TeraBox downloader with **three different access methods** - choose
 ## 🚀 Quick Start
 
 ### Installation
+
 ```bash
 # Clone or download the project
 git clone <repository-url>
@@ -40,6 +44,7 @@ streamlit run app.py
 ```
 
 ### First Time Usage
+
 1. **Open your browser** - Navigate to `http://localhost:8501`
 2. **Choose your mode** - Pick from Unofficial, Cookie, or Official API
 3. **Configure if needed** - Some modes require setup
@@ -52,18 +57,21 @@ streamlit run app.py
 **Perfect for: Quick downloads, testing, maximum privacy**
 
 #### How it Works
+
 - Scrapes TeraBox share links directly
 - Uses multiple extraction strategies
 - No authentication required
 - Works with public share links only
 
 #### Setup
+
 1. **No setup needed!** - Just select Unofficial Mode
 2. **Choose processing mode** - Mode 3 recommended
 3. **Paste TeraBox link** - Any public share link
 4. **Download files** - Direct download or streaming
 
 #### Features
+
 - ✅ 3 different extraction modes
 - ✅ User agent rotation
 - ✅ Retry logic with exponential backoff
@@ -72,7 +80,8 @@ streamlit run app.py
 - ✅ Network diagnostics
 
 #### Supported Links
-```
+
+```txt
 https://www.terabox.com/s/1aBcDeFgHiJkL
 https://1024terabox.com/s/1MnOpQrStUvWx
 https://freeterabox.com/s/1YzAbCdEfGhIj
@@ -82,15 +91,17 @@ https://terasharelink.com/s/1WxYzAbCdEfGh
 
 ### 🍪 Cookie Mode
 
-**Perfect for: Regular users, reliable downloads, personal projects**
+**Perfect for: Regular users, reliable downloads, personal projects:**
 
-#### How it Works
+#### How it Works 1
+
 - Uses your TeraBox session cookie
 - Authenticated access to TeraBox APIs
 - Direct download link generation
 - Progress tracking with callbacks
 
-#### Setup
+#### Setup 1
+
 1. **Login to TeraBox** - Use your browser
 2. **Extract cookie** - Follow our detailed tutorial
 3. **Configure TeraDL** - Paste cookie in Cookie Mode page
@@ -100,7 +111,8 @@ https://terasharelink.com/s/1WxYzAbCdEfGh
 #### Cookie Extraction Tutorial
 
 **Chrome:**
-```
+
+```txt
 1. Open TeraBox.com and login
 2. Press F12 (Developer Tools)
 3. Go to Application tab
@@ -110,7 +122,8 @@ https://terasharelink.com/s/1WxYzAbCdEfGh
 ```
 
 **Firefox:**
-```
+
+```txt
 1. Open TeraBox.com and login
 2. Press F12 (Developer Tools)  
 3. Go to Storage tab
@@ -120,6 +133,7 @@ https://terasharelink.com/s/1WxYzAbCdEfGh
 ```
 
 **Alternative Method:**
+
 ```
 1. Open Network tab in Developer Tools
 2. Refresh TeraBox page
@@ -128,6 +142,7 @@ https://terasharelink.com/s/1WxYzAbCdEfGh
 ```
 
 #### Features
+
 - ✅ Direct download links
 - ✅ File metadata (name, size, thumbnail)
 - ✅ Progress tracking with callbacks
@@ -137,6 +152,7 @@ https://terasharelink.com/s/1WxYzAbCdEfGh
 - ✅ Error handling and retries
 
 #### Example Usage
+
 ```python
 from terabox_cookie_api import TeraBoxCookieAPI
 
@@ -159,12 +175,14 @@ result = api.download(file_info, save_path="download/", callback=progress_callba
 **Perfect for: Business applications, enterprise use, full-featured apps**
 
 #### How it Works
+
 - Official TeraBox Open Platform APIs
 - OAuth 2.0 authentication (Authorization Code + Device Code flows)
 - Complete REST API implementation
 - Enterprise-grade security and reliability
 
 #### Setup
+
 1. **Apply for API access** - Contact TeraBox business team
 2. **Get credentials** - Receive Client ID, Client Secret, Private Secret
 3. **Configure TeraDL** - Enter credentials in API Mode page
@@ -172,6 +190,7 @@ result = api.download(file_info, save_path="download/", callback=progress_callba
 5. **Full access** - Use all TeraBox features
 
 #### API Credentials Application
+
 ```
 Contact: TeraBox Business Team
 Required Info:
@@ -190,6 +209,7 @@ You'll receive:
 #### Authentication Flows
 
 **Authorization Code Flow:**
+
 ```
 1. Redirect user to TeraBox authorization page
 2. User logs in and grants permission
@@ -199,6 +219,7 @@ You'll receive:
 ```
 
 **Device Code Flow (QR Code):**
+
 ```
 1. Generate device code and QR code
 2. User scans QR with TeraBox mobile app
@@ -208,6 +229,7 @@ You'll receive:
 ```
 
 #### Features
+
 - ✅ Complete user account integration
 - ✅ File management (upload, download, list, search)
 - ✅ Share management (create, manage external links)
@@ -218,6 +240,7 @@ You'll receive:
 - ✅ Enterprise security
 
 #### API Endpoints Used
+
 ```
 Authentication:
 - POST /oauth/gettoken
@@ -260,6 +283,7 @@ Share Management:
 ## 🛠️ Advanced Configuration
 
 ### Environment Variables
+
 ```bash
 # General Settings
 TERADL_API_MODE=cookie              # unofficial, cookie, official
@@ -282,6 +306,7 @@ TERABOX_PRIVATE_SECRET=your_private_secret
 ```
 
 ### Configuration File
+
 ```json
 {
   "app": {
@@ -308,6 +333,7 @@ TERABOX_PRIVATE_SECRET=your_private_secret
 ## 📱 User Interface Guide
 
 ### Main Application
+
 - **Mode indicator** - Shows current active mode
 - **Quick mode switching** - Easy mode changes
 - **File extraction** - Unified interface for all modes
@@ -315,6 +341,7 @@ TERABOX_PRIVATE_SECRET=your_private_secret
 - **Progress tracking** - Real-time status updates
 
 ### Page Navigation
+
 - **🏠 Home** - Main file extraction interface
 - **🔑 API Mode** - Configure Official API and mode selection
 - **🍪 Cookie Mode** - Cookie extraction and management
@@ -327,6 +354,7 @@ TERABOX_PRIVATE_SECRET=your_private_secret
 ### Features by Page
 
 **Main App (🏠):**
+
 - TeraBox URL input
 - Mode-specific processing
 - File listing with thumbnails
@@ -335,6 +363,7 @@ TERABOX_PRIVATE_SECRET=your_private_secret
 - Progress indicators
 
 **Cookie Mode (🍪):**
+
 - Cookie extraction tutorial
 - Cookie validation
 - Single/multiple file processing
@@ -342,6 +371,7 @@ TERABOX_PRIVATE_SECRET=your_private_secret
 - Debug and testing tools
 
 **File Manager (📁):**
+
 - Directory browsing
 - File search
 - User account info
@@ -350,6 +380,7 @@ TERABOX_PRIVATE_SECRET=your_private_secret
 - Download link generation
 
 **Settings (⚙️):**
+
 - Mode-specific configurations
 - Credential management
 - Export/import settings
@@ -359,6 +390,7 @@ TERABOX_PRIVATE_SECRET=your_private_secret
 ## 🔧 Development Guide
 
 ### Project Structure
+
 ```
 teradl/
 ├── app.py                          # Main Streamlit application
@@ -384,6 +416,7 @@ teradl/
 ```
 
 ### Key Classes
+
 ```python
 # Unofficial scraping
 TeraboxCore(mode=3)
@@ -403,6 +436,7 @@ TeraBoxOfficialAPI(client_id, client_secret, private_secret)
 ```
 
 ### Adding New Features
+
 1. **Choose the right mode** - Consider which modes should support the feature
 2. **Update core classes** - Add methods to appropriate API classes
 3. **Update UI** - Add interface elements in relevant pages
@@ -415,6 +449,7 @@ TeraBoxOfficialAPI(client_id, client_secret, private_secret)
 ### Common Issues
 
 #### Unofficial Mode
+
 ```
 Problem: "Connection reset" errors
 Solution: 
@@ -432,6 +467,7 @@ Solution:
 ```
 
 #### Cookie Mode
+
 ```
 Problem: "Invalid cookie" error
 Solution:
@@ -449,6 +485,7 @@ Solution:
 ```
 
 #### Official API
+
 ```
 Problem: "Authentication failed"
 Solution:
@@ -466,7 +503,9 @@ Solution:
 ```
 
 ### Debug Mode
+
 Enable debug mode in Settings to see:
+
 - Detailed request/response logs
 - API call traces
 - Error stack traces
@@ -474,7 +513,9 @@ Enable debug mode in Settings to see:
 - Session state information
 
 ### Network Diagnostics
+
 Use the Network Diagnostics page to:
+
 - Test DNS resolution
 - Check HTTP connectivity
 - Compare different connection methods
@@ -484,18 +525,21 @@ Use the Network Diagnostics page to:
 ## 📊 Performance Tips
 
 ### Unofficial Mode
+
 - Use Mode 3 for best reliability
 - Enable user agent rotation
 - Set appropriate retry delays
 - Monitor connection health
 
 ### Cookie Mode  
+
 - Keep cookies fresh
 - Use progress callbacks for large files
 - Implement proper error handling
 - Test cookie validity regularly
 
 ### Official API
+
 - Cache token information
 - Batch file operations
 - Use appropriate page sizes
@@ -504,18 +548,21 @@ Use the Network Diagnostics page to:
 ## 🔐 Security Considerations
 
 ### Cookie Mode Security
+
 - Keep cookies private and secure
 - Don't share cookies with others
 - Cookies expire with browser sessions
 - Use HTTPS for all requests
 
 ### Official API Security
+
 - Store credentials securely
 - Use environment variables
 - Implement proper token refresh
 - Follow OAuth 2.0 best practices
 
 ### General Security
+
 - Don't log sensitive data
 - Use secure connections
 - Validate all inputs
@@ -524,6 +571,7 @@ Use the Network Diagnostics page to:
 ## 📞 Support & Community
 
 ### Getting Help
+
 1. **Check documentation** - Comprehensive guides available
 2. **Use diagnostics** - Built-in debugging tools
 3. **Try different modes** - Switch if one isn't working
@@ -531,6 +579,7 @@ Use the Network Diagnostics page to:
 5. **Contact maintainers** - For persistent issues
 
 ### Contributing
+
 - Report bugs and issues
 - Suggest new features
 - Improve documentation
@@ -538,6 +587,7 @@ Use the Network Diagnostics page to:
 - Help other users
 
 ### License
+
 MIT License - Free for personal and commercial use
 
 ---

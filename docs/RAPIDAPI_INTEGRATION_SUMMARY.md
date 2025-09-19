@@ -42,7 +42,7 @@ This document summarizes the comprehensive enhancements made to the TeraDL Rapid
 
 #### ✅ **Supported URL Formats:**
 
-```
+```txt
 ✅ https://terasharelink.com/s/12TX5ZJi1vCaNPXENFZIZjw
 ✅ https://1024terabox.com/s/1aBcDeFgHiJkL  
 ✅ https://freeterabox.com/s/1MnOpQrStUvWx
@@ -128,7 +128,7 @@ def download_file_with_progress(file_info):
 
 **Test Results:**
 
-```
+```txt
 🎯 Overall: 3/3 tests passed
 🎉 All tests passed! Integration is ready.
 ```
@@ -137,19 +137,19 @@ def download_file_with_progress(file_info):
 
 ### **Response Processing Flow:**
 
-```
+```txt
 User RapidAPI Response → _process_api_response() → _validate_file_result() → Enhanced File Info
 ```
 
 ### **Download Flow:**
 
-```
+```txt
 File Info → Multiple URLs → Smart Fallback → Progress Tracking → Success/Error Handling
 ```
 
 ### **URL Processing:**
 
-```
+```txt
 Raw URL → Domain Detection → Format Normalization → RapidAPI Compatible URL
 ```
 

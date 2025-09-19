@@ -1,3 +1,23 @@
+"""
+TeraBox Core Processing Module
+
+This module implements the core TeraBox file extraction functionality using three different modes:
+1. Mode 1: Dynamic cookie extraction with real-time scraping
+2. Mode 2: Static cookie usage from configuration
+3. Mode 3: External service integration for sign/timestamp generation
+
+The module provides robust error handling, retry mechanisms, and comprehensive logging
+for debugging and monitoring purposes.
+
+Architecture:
+- TeraboxCore: Main class handling all extraction modes
+- Session management: HTTP session with connection pooling and retry strategies
+- CloudScraper integration: Anti-bot protection for Mode 3
+- URL normalization: Handles various TeraBox URL formats
+- File type detection: Categorizes files based on extensions
+- Progress tracking: Real-time extraction progress monitoring
+"""
+
 import re
 import requests
 import math
@@ -17,20 +37,54 @@ from utils.config import (
 from utils.terabox_config import get_config_manager
 
 class TeraboxCore:
-    """Core TeraBox processing class combining all three modes"""
+    """
+    Core TeraBox processing class combining all three extraction modes
+    
+    This class serves as the central hub for TeraBox file extraction, providing:
+    - Multi-mode extraction strategies (1: Dynamic, 2: Static, 3: External)
+    - Robust error handling and retry mechanisms
+    - Connection pooling and session management
+    - User agent rotation for anti-detection
+    - Comprehensive logging for debugging
+    
+    Architecture Pattern: Strategy Pattern
+    - Each mode implements a different extraction strategy
+    - Common interface for all extraction methods
+    - Configurable retry and timeout policies
+    - Centralized session and header management
+    """
     
     def __init__(self, mode: int = None):
-        # Get configuration
+        """
+        Initialize TeraBox core processor
+        
+        Args:
+            mode: Extraction mode (1=Dynamic, 2=Static, 3=External)
+                 If None, uses default from configuration
+        
+        Processing Modes:
+        - Mode 1: Real-time cookie extraction and dynamic scraping
+        - Mode 2: Static cookie usage from pre-configured sessions
+        - Mode 3: External service integration for reliable processing
+        """
+        log_info(f"Initializing TeraboxCore with mode: {mode}")
+        
+        # Load configuration from centralized config manager
         self.config_manager = get_config_manager()
         self.unofficial_config = self.config_manager.get_unofficial_config()
         self.network_config = self.config_manager.get_network_config()
         
-        # Use config values
+        # Set processing mode (default from config if not specified)
         self.mode = mode if mode is not None else self.unofficial_config.default_mode
         self.max_retries = self.unofficial_config.max_retries
         self.retry_delay = self.unofficial_config.retry_delay
         
-        # Rotate user agents to avoid detection
+        log_info(f"Configuration loaded - Mode: {self.mode}, Max Retries: {self.max_retries}, Retry Delay: {self.retry_delay}s")
+        
+        # User Agent Rotation Strategy
+        # Purpose: Avoid detection by TeraBox anti-bot systems
+        # Pattern: Rotate between realistic browser user agents
+        # Impact: Reduces chance of request blocking and improves success rate
         self.user_agents = [
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
@@ -39,136 +93,305 @@ class TeraboxCore:
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0'
         ]
         
+        log_info(f"User agent pool initialized with {len(self.user_agents)} agents")
+        
+        # HTTP Headers Strategy
+        # Purpose: Mimic real browser behavior to avoid detection
+        # Pattern: Use modern browser headers with security policies
+        # Security: Include Sec-Fetch headers for CORS compliance
         self.headers = {
-            'user-agent': random.choice(self.user_agents),
+            'user-agent': random.choice(self.user_agents),  # Randomized on each request
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'accept-language': 'en-US,en;q=0.9',
-            'accept-encoding': 'gzip, deflate, br',
-            'cache-control': 'no-cache',
-            'pragma': 'no-cache',
-            'sec-fetch-dest': 'document',
-            'sec-fetch-mode': 'navigate',
-            'sec-fetch-site': 'none',
-            'sec-fetch-user': '?1',
-            'upgrade-insecure-requests': '1'
+            'accept-language': 'en-US,en;q=0.9',  # English preference
+            'accept-encoding': 'gzip, deflate, br',  # Modern compression support
+            'cache-control': 'no-cache',  # Force fresh requests
+            'pragma': 'no-cache',  # HTTP/1.0 compatibility
+            'sec-fetch-dest': 'document',  # Security policy: expecting document
+            'sec-fetch-mode': 'navigate',  # Security policy: navigation request
+            'sec-fetch-site': 'none',  # Security policy: direct navigation
+            'sec-fetch-user': '?1',  # Security policy: user-initiated
+            'upgrade-insecure-requests': '1'  # Prefer HTTPS
         }
         
-        # Setup session with retry strategy
+        log_info(f"HTTP headers configured with user-agent: {self.headers['user-agent'][:50]}...")
+        
+        # Session Management Strategy
+        # Purpose: Create robust HTTP sessions with retry policies
+        # Pattern: Separate sessions for different use cases
+        # Benefits: Connection pooling, automatic retries, enhanced reliability
         self.session = self._create_session()
-        self.cloudscraper_session = self._create_cloudscraper() if mode == 3 else None
+        
+        # CloudScraper for Mode 3 (Anti-bot protection)
+        # Purpose: Handle JavaScript challenges and anti-bot measures
+        # Usage: Only initialized for Mode 3 to avoid unnecessary overhead
+        self.cloudscraper_session = self._create_cloudscraper() if self.mode == 3 else None
+        
+        log_info(f"Sessions initialized - Standard session: OK, CloudScraper: {'OK' if self.cloudscraper_session else 'FAILED'}")
+        log_info(f"TeraboxCore initialization complete for mode {self.mode}")
     
     def _create_session(self):
-        """Create a requests session with retry strategy and connection pooling"""
+        """
+        Create a robust HTTP session with retry strategy and connection pooling
+        
+        Architecture Components:
+        1. Retry Strategy: Handles transient failures automatically
+        2. Connection Pooling: Reuses connections for better performance
+        3. Timeout Configuration: Prevents hanging requests
+        4. HTTP Adapter: Custom adapter with enhanced retry logic
+        
+        Returns:
+            requests.Session: Configured session ready for TeraBox requests
+        """
+        log_info("Creating HTTP session with retry strategy and connection pooling")
+        
         session = requests.Session()
         
-        # Configure retry strategy
+        # Retry Strategy Configuration
+        # Purpose: Handle transient network failures and server errors
+        # Algorithm: Exponential backoff with configurable attempts
+        # Status Codes: Retry on server errors and rate limits
         retry_strategy = Retry(
-            total=self.max_retries,
-            backoff_factor=1,
-            status_forcelist=[429, 500, 502, 503, 504],
-            allowed_methods=["HEAD", "GET", "OPTIONS", "POST"]
+            total=self.max_retries,  # Maximum retry attempts
+            backoff_factor=1,  # Exponential backoff multiplier (1s, 2s, 4s, ...)
+            status_forcelist=[429, 500, 502, 503, 504],  # HTTP codes to retry
+            allowed_methods=["HEAD", "GET", "OPTIONS", "POST"]  # Safe methods to retry
         )
         
-        # Mount adapter with retry strategy
+        log_info(f"Retry strategy configured - Total: {self.max_retries}, Backoff: exponential, Status codes: [429, 500, 502, 503, 504]")
+        
+        # HTTP Adapter with Connection Pooling
+        # Purpose: Optimize connection reuse and handle retries
+        # Pool Settings: Balance between performance and resource usage
         adapter = HTTPAdapter(
             max_retries=retry_strategy,
-            pool_connections=10,
-            pool_maxsize=20,
-            pool_block=False
+            pool_connections=10,  # Number of connection pools to cache
+            pool_maxsize=20,  # Maximum connections per pool
+            pool_block=False  # Don't block when pool is full
         )
         
+        # Mount adapters for both HTTP and HTTPS
         session.mount("http://", adapter)
         session.mount("https://", adapter)
         
-        # Set session headers
+        log_info("HTTP adapters mounted with connection pooling (10 pools, 20 max connections each)")
+        
+        # Apply session headers from initialization
         session.headers.update(self.headers)
         
-        # Configure timeouts
-        session.timeout = (10, 30)  # (connect_timeout, read_timeout)
+        # Timeout Configuration
+        # Purpose: Prevent hanging requests and improve responsiveness
+        # Values: (connect_timeout, read_timeout) in seconds
+        session.timeout = (10, 30)  # 10s to connect, 30s to read response
+        
+        log_info("Session timeout configured - Connect: 10s, Read: 30s")
+        log_info("HTTP session creation completed successfully")
         
         return session
     
     def _create_cloudscraper(self):
-        """Create a cloudscraper session with enhanced configuration"""
+        """
+        Create a CloudScraper session for anti-bot protection (Mode 3)
+        
+        CloudScraper Purpose:
+        - Automatically solves JavaScript challenges
+        - Bypasses Cloudflare and similar protections
+        - Handles dynamic anti-bot measures
+        - Provides more reliable access to protected endpoints
+        
+        Configuration Strategy:
+        - Emulate Chrome on Windows for maximum compatibility
+        - Add delay to avoid rapid-fire requests
+        - Use randomized user agents for variety
+        
+        Returns:
+            cloudscraper.CloudScraper: Anti-bot protected session
+        """
+        log_info("Creating CloudScraper session for anti-bot protection")
+        
         try:
+            # CloudScraper Configuration
+            # Browser Emulation: Chrome on Windows (most common combination)
+            # Platform: Windows (widely supported)
+            # Mobile: False (desktop version for better compatibility)
             scraper = cloudscraper.create_scraper(
                 browser={
-                    'browser': 'chrome',
-                    'platform': 'windows',
-                    'mobile': False
+                    'browser': 'chrome',  # Emulate Chrome browser
+                    'platform': 'windows',  # Windows platform
+                    'mobile': False  # Desktop version
                 },
-                delay=1
+                delay=1  # 1 second delay between challenge attempts
             )
             
-            # Add custom headers
+            log_info("CloudScraper base configuration applied - Browser: Chrome, Platform: Windows")
+            
+            # Enhanced Headers for CloudScraper
+            # Purpose: Override default headers with our optimized set
+            # Strategy: Use JSON-focused headers for API endpoints
             scraper.headers.update({
-                'user-agent': random.choice(self.user_agents),
-                'accept': 'application/json, text/plain, */*',
-                'accept-language': 'en-US,en;q=0.9',
-                'cache-control': 'no-cache',
-                'pragma': 'no-cache'
+                'user-agent': random.choice(self.user_agents),  # Randomized UA
+                'accept': 'application/json, text/plain, */*',  # JSON preference
+                'accept-language': 'en-US,en;q=0.9',  # Language preference
+                'cache-control': 'no-cache',  # Force fresh requests
+                'pragma': 'no-cache'  # HTTP/1.0 compatibility
             })
             
+            log_info(f"CloudScraper headers configured with user-agent: {scraper.headers['user-agent'][:50]}...")
+            log_info("CloudScraper session creation completed successfully")
+            
             return scraper
+            
         except Exception as e:
+            # Fallback Strategy: Use regular session if CloudScraper fails
+            # Reason: Ensure functionality even if CloudScraper has issues
+            # Impact: Reduced anti-bot protection but maintained basic functionality
             log_error(e, "_create_cloudscraper")
-            return requests.Session()
+            log_info("CloudScraper failed, falling back to regular requests session")
+            
+            fallback_session = requests.Session()
+            fallback_session.headers.update(self.headers)
+            return fallback_session
     
     def _make_request(self, method: str, url: str, **kwargs):
-        """Make HTTP request with retry logic and error handling"""
+        """
+        Make HTTP request with comprehensive retry logic and error handling
+        
+        Request Strategy:
+        1. Exponential backoff with jitter for retry delays
+        2. User agent rotation on retries to avoid detection
+        3. Comprehensive error categorization and handling
+        4. Detailed logging for debugging and monitoring
+        
+        Args:
+            method: HTTP method (GET, POST, etc.)
+            url: Target URL for the request
+            **kwargs: Additional arguments passed to requests
+            
+        Returns:
+            requests.Response: Successful HTTP response
+            
+        Raises:
+            requests.exceptions.ConnectionError: After max retries exceeded
+        """
+        log_info(f"Starting {method.upper()} request to {url[:100]}{'...' if len(url) > 100 else ''}")
+        log_info(f"Request parameters - Max retries: {self.max_retries}, Base delay: {self.retry_delay}s")
+        
         for attempt in range(self.max_retries + 1):
             try:
-                log_info(f"Making {method} request to {url} (attempt {attempt + 1})")
+                log_info(f"HTTP {method.upper()} attempt {attempt + 1}/{self.max_retries + 1} to {url[:50]}...")
                 
-                # Add random delay to avoid rate limiting
+                # Exponential Backoff with Jitter
+                # Purpose: Avoid thundering herd problem and reduce server load
+                # Algorithm: delay = base_delay * (2^attempt) + random_jitter
+                # Benefit: Spreads retry attempts over time
                 if attempt > 0:
-                    delay = self.retry_delay * (2 ** (attempt - 1)) + random.uniform(0.1, 0.5)
-                    log_info(f"Waiting {delay:.2f} seconds before retry...")
-                    time.sleep(delay)
+                    base_delay = self.retry_delay * (2 ** (attempt - 1))
+                    jitter = random.uniform(0.1, 0.5)  # Random jitter to avoid synchronization
+                    total_delay = base_delay + jitter
+                    
+                    log_info(f"Retry delay calculation - Base: {base_delay:.2f}s, Jitter: {jitter:.2f}s, Total: {total_delay:.2f}s")
+                    log_info(f"Waiting {total_delay:.2f} seconds before retry attempt {attempt + 1}...")
+                    time.sleep(total_delay)
                 
-                # Rotate user agent on retry
+                # User Agent Rotation on Retry
+                # Purpose: Avoid detection by appearing as different browsers
+                # Strategy: Only rotate on retries to maintain session consistency
                 if attempt > 0:
-                    self.session.headers['user-agent'] = random.choice(self.user_agents)
+                    new_ua = random.choice(self.user_agents)
+                    old_ua = self.session.headers.get('user-agent', 'Unknown')[:30]
+                    self.session.headers['user-agent'] = new_ua
+                    log_info(f"User agent rotated from {old_ua}... to {new_ua[:30]}...")
                 
-                # Make the request
+                # Execute HTTP Request
+                # Method Dispatch: Support for different HTTP methods
+                # Error Handling: Let exceptions bubble up for retry logic
                 if method.upper() == 'GET':
+                    log_info(f"Executing GET request with {len(kwargs)} additional parameters")
                     response = self.session.get(url, **kwargs)
                 elif method.upper() == 'POST':
+                    log_info(f"Executing POST request with {len(kwargs)} additional parameters")
                     response = self.session.post(url, **kwargs)
                 else:
-                    raise ValueError(f"Unsupported HTTP method: {method}")
+                    error_msg = f"Unsupported HTTP method: {method}"
+                    log_error(ValueError(error_msg), "_make_request")
+                    raise ValueError(error_msg)
                 
-                # Check response status
+                # Response Validation
+                # Purpose: Ensure we got a successful response
+                # Action: Raise exception for HTTP error status codes
                 response.raise_for_status()
                 
-                log_info(f"Request successful: {response.status_code}")
+                # Success Logging
+                response_size = len(response.content) if hasattr(response, 'content') else 0
+                log_info(f"Request successful - Status: {response.status_code}, Size: {response_size} bytes, URL: {response.url}")
+                log_info(f"Response headers - Content-Type: {response.headers.get('content-type', 'Unknown')}")
+                
                 return response
                 
             except requests.exceptions.ConnectionError as e:
-                log_error(e, f"_make_request - connection error (attempt {attempt + 1})")
+                # Connection Error Handling
+                # Causes: Network issues, DNS failures, connection refused
+                # Strategy: Retry with exponential backoff
+                # User Impact: Temporary network issues should resolve automatically
+                log_error(e, f"_make_request - connection error (attempt {attempt + 1}/{self.max_retries + 1})")
+                log_info(f"Connection error details - Error type: {type(e).__name__}, Message: {str(e)}")
+                
                 if attempt == self.max_retries:
+                    log_error(Exception("Max retries exceeded for connection errors"), "_make_request")
                     raise
                 continue
                 
             except requests.exceptions.Timeout as e:
-                log_error(e, f"_make_request - timeout error (attempt {attempt + 1})")
+                # Timeout Error Handling  
+                # Causes: Slow server response, network congestion
+                # Strategy: Retry with longer delays
+                # User Impact: Server overload should resolve with retries
+                log_error(e, f"_make_request - timeout error (attempt {attempt + 1}/{self.max_retries + 1})")
+                log_info(f"Timeout error details - Timeout type: {type(e).__name__}, Configured timeout: {getattr(self.session, 'timeout', 'Unknown')}")
+                
                 if attempt == self.max_retries:
+                    log_error(Exception("Max retries exceeded for timeout errors"), "_make_request")
                     raise
                 continue
                 
             except requests.exceptions.HTTPError as e:
-                log_error(e, f"_make_request - HTTP error (attempt {attempt + 1})")
-                if e.response.status_code in [429, 500, 502, 503, 504] and attempt < self.max_retries:
+                # HTTP Error Handling
+                # Causes: 4xx client errors, 5xx server errors
+                # Strategy: Retry only on server errors and rate limits
+                # Decision Logic: Client errors (4xx) are usually permanent
+                status_code = e.response.status_code if e.response else 'Unknown'
+                log_error(e, f"_make_request - HTTP error {status_code} (attempt {attempt + 1}/{self.max_retries + 1})")
+                log_info(f"HTTP error details - Status: {status_code}, URL: {e.response.url if e.response else 'Unknown'}")
+                
+                # Retry Strategy for HTTP Errors
+                # 429: Rate limited - should retry with delay
+                # 5xx: Server errors - temporary issues, worth retrying
+                # 4xx: Client errors - usually permanent, don't retry
+                if e.response and e.response.status_code in [429, 500, 502, 503, 504] and attempt < self.max_retries:
+                    log_info(f"HTTP {status_code} is retryable, continuing with retry {attempt + 1}")
                     continue
-                raise
+                else:
+                    log_info(f"HTTP {status_code} is not retryable or max retries reached, raising exception")
+                    raise
                 
             except Exception as e:
-                log_error(e, f"_make_request - unexpected error (attempt {attempt + 1})")
+                # Unexpected Error Handling
+                # Causes: JSON decode errors, unexpected exceptions
+                # Strategy: Log details and retry if attempts remain
+                # Safety: Catch-all to prevent complete failure
+                log_error(e, f"_make_request - unexpected error (attempt {attempt + 1}/{self.max_retries + 1})")
+                log_info(f"Unexpected error details - Type: {type(e).__name__}, Message: {str(e)}")
+                
                 if attempt == self.max_retries:
+                    log_error(Exception("Max retries exceeded for unexpected errors"), "_make_request")
                     raise
                 continue
         
-        raise requests.exceptions.ConnectionError("Max retries exceeded")
+        # Final Failure Handling
+        # Reached when all retry attempts have been exhausted
+        # Impact: Complete request failure, will propagate to caller
+        error_msg = f"Max retries ({self.max_retries + 1}) exceeded for {method.upper()} {url}"
+        log_error(Exception(error_msg), "_make_request")
+        raise requests.exceptions.ConnectionError(error_msg)
         
     def extract_files(self, url: str) -> Dict[str, Any]:
         """Extract files from TeraBox URL based on selected mode"""

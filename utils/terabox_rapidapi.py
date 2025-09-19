@@ -2,8 +2,35 @@
 TeraBox RapidAPI Integration Module
 Commercial API service for TeraBox file extraction
 
-This module provides access to RapidAPI's TeraBox downloader service
-which offers reliable, commercial-grade TeraBox file processing.
+This module provides access to RapidAPI's TeraBox downloader service which offers 
+reliable, commercial-grade TeraBox file processing with professional support and SLA.
+
+Key Features:
+- Commercial-grade reliability and uptime guarantees
+- Simple API key authentication (no complex OAuth flows)
+- Intelligent response caching for performance optimization
+- Comprehensive error handling and retry mechanisms
+- Multiple download URL generation for redundancy
+- Real-time progress tracking for downloads
+- Professional support and documentation
+
+Architecture:
+- TeraBoxRapidAPI: Main client class for API interactions
+- CacheManager: Intelligent caching layer for response optimization
+- ConfigManager: Centralized configuration management
+- Validation: Multi-layer API key and response validation
+- Error Handling: Comprehensive error categorization and recovery
+
+API Key Format:
+- Length: Exactly 50 characters
+- Pattern: [alphanumeric]msh[alphanumeric]jsn[alphanumeric]
+- Example: 298bbd7e09msh8c672d04ba26de4p154bc9jsn9de6459d8a13
+
+Response Caching Strategy:
+- Cache Key: Extracted from TeraBox URL (surl parameter)
+- TTL: Configurable (default 24 hours)
+- Storage: JSON files in output/sessions directory
+- Benefits: Faster responses, reduced API costs, offline access
 """
 
 import requests
@@ -15,94 +42,270 @@ from utils.cache_manager import TeraBoxCacheManager
 from utils.terabox_config import get_config_manager
 
 class TeraBoxRapidAPI:
-    """RapidAPI-based TeraBox client for commercial service integration"""
+    """
+    RapidAPI-based TeraBox client for commercial service integration
+    
+    This class provides a professional-grade interface to TeraBox file extraction
+    through RapidAPI's commercial service, offering guaranteed reliability and support.
+    
+    Key Capabilities:
+    - Commercial API service integration with SLA guarantees
+    - Intelligent response caching for cost optimization
+    - Multi-layer validation (format + live API testing)
+    - Comprehensive error handling and retry mechanisms
+    - Progress tracking for large file downloads
+    - Multiple download URL generation for redundancy
+    
+    Architecture Pattern: Facade Pattern
+    - Simplifies complex RapidAPI interactions
+    - Provides unified interface for TeraBox operations
+    - Handles authentication, caching, and error recovery
+    - Abstracts away API complexity from UI components
+    
+    Caching Strategy:
+    - Cache responses based on TeraBox URL surl parameter
+    - Configurable TTL (Time To Live) for cache expiration
+    - Automatic cleanup of expired cache entries
+    - Performance benefits: faster responses, reduced API costs
+    """
     
     def __init__(self, rapidapi_key: str = None, enable_cache: bool = None, cache_ttl_hours: int = None):
-        # Get configuration manager
+        """
+        Initialize RapidAPI client with configuration and caching
+        
+        Args:
+            rapidapi_key: RapidAPI key for authentication (overrides config)
+            enable_cache: Enable response caching (overrides config)
+            cache_ttl_hours: Cache TTL in hours (overrides config)
+            
+        Initialization Flow:
+        1. Load configuration from centralized config manager
+        2. Apply parameter overrides if provided
+        3. Initialize HTTP session with RapidAPI headers
+        4. Set up cache manager if caching is enabled
+        5. Validate configuration and log initialization status
+        """
+        log_info("Initializing TeraBoxRapidAPI client")
+        
+        # Configuration Loading
+        # Purpose: Load settings from centralized configuration system
+        # Hierarchy: Parameter overrides > config file > defaults
         self.config_manager = get_config_manager()
         self.rapidapi_config = self.config_manager.get_rapidapi_config()
         self.network_config = self.config_manager.get_network_config()
         
-        # Use provided values or fall back to config
-        # Handle empty string vs None properly
+        log_info("Configuration managers loaded successfully")
+        
+        # API Key Configuration
+        # Strategy: Parameter override takes precedence over config file
+        # Security: Handle empty strings vs None properly for security
         if rapidapi_key is not None:
             self.rapidapi_key = rapidapi_key
+            log_info("Using API key from parameter override")
         else:
             self.rapidapi_key = self.rapidapi_config.api_key
+            log_info("Using API key from configuration file")
+        
+        # Service Configuration
+        # Purpose: Set up RapidAPI service endpoints and timeouts
+        # Source: Loaded from configuration with fallback to defaults
         self.base_url = self.rapidapi_config.base_url
         self.host = self.rapidapi_config.host
         self.timeout = self.rapidapi_config.timeout
         self.max_retries = self.rapidapi_config.max_retries
         self.retry_delay = self.rapidapi_config.retry_delay
         
-        # Cache settings
+        log_info(f"Service configuration - Base URL: {self.base_url}")
+        log_info(f"Network settings - Timeout: {self.timeout}s, Max Retries: {self.max_retries}, Retry Delay: {self.retry_delay}s")
+        
+        # Cache Configuration
+        # Purpose: Set up intelligent response caching for performance
+        # Benefits: Faster responses, reduced API costs, offline access
         self.enable_cache = enable_cache if enable_cache is not None else self.rapidapi_config.enable_cache
         cache_ttl = cache_ttl_hours if cache_ttl_hours is not None else self.rapidapi_config.cache_ttl_hours
         
-        # Initialize session
+        log_info(f"Cache configuration - Enabled: {self.enable_cache}, TTL: {cache_ttl} hours")
+        
+        # HTTP Session Initialization
+        # Purpose: Create session for RapidAPI requests with proper headers
+        # Security: Include required RapidAPI authentication headers
         self.session = requests.Session()
         
-        # Initialize cache manager
+        # Cache Manager Initialization
+        # Purpose: Handle response caching and cache management
+        # Conditional: Only create if caching is enabled to save resources
         self.cache_manager = TeraBoxCacheManager(cache_ttl_hours=cache_ttl) if self.enable_cache else None
         
-        # Set up session headers
+        if self.cache_manager:
+            log_info(f"Cache manager initialized - Directory: {self.cache_manager.cache_dir}")
+        else:
+            log_info("Cache manager disabled - no caching will be performed")
+        
+        # Session Headers Configuration
+        # Purpose: Set up authentication and identification headers for RapidAPI
+        # Security: Include API key and host validation headers
         if self.rapidapi_key:
             self.session.headers.update({
-                'X-RapidAPI-Key': self.rapidapi_key,
-                'X-RapidAPI-Host': self.host,
-                'User-Agent': self.network_config.user_agent
+                'X-RapidAPI-Key': self.rapidapi_key,  # Authentication header
+                'X-RapidAPI-Host': self.host,  # Service identification
+                'User-Agent': self.network_config.user_agent  # Client identification
             })
+            log_info("RapidAPI authentication headers configured successfully")
+            log_info(f"API key configured - Length: {len(self.rapidapi_key)}, Host: {self.host}")
+        else:
+            log_info("No API key provided - headers not configured")
         
+        # Final Initialization Status
         if self.enable_cache:
-            log_info("RapidAPI client initialized with caching enabled")
+            log_info("RapidAPI client initialization complete with caching enabled")
+        else:
+            log_info("RapidAPI client initialization complete without caching")
     
     def set_api_key(self, api_key: str):
-        """Set or update the RapidAPI key"""
+        """
+        Set or update the RapidAPI key with validation and configuration update
+        
+        Args:
+            api_key: New RapidAPI key to configure
+            
+        Process:
+        1. Update instance variable
+        2. Update session headers for immediate use
+        3. Persist to configuration manager for future sessions
+        4. Log the update for audit trail
+        
+        Security Note: API key is logged by length only for security
+        """
+        log_info(f"Updating RapidAPI key - Previous length: {len(self.rapidapi_key) if self.rapidapi_key else 0}, New length: {len(api_key)}")
+        
+        # Update instance configuration
         self.rapidapi_key = api_key
+        
+        # Update session headers for immediate effect
+        # Purpose: Ensure current session uses new key without restart
         self.session.headers.update({
-            'X-RapidAPI-Key': api_key,
-            'X-RapidAPI-Host': self.host
+            'X-RapidAPI-Key': api_key,  # Authentication header
+            'X-RapidAPI-Host': self.host  # Service identification
         })
-        # Also update the config manager
+        
+        log_info("Session headers updated with new API key")
+        
+        # Persist to configuration manager
+        # Purpose: Save key for future application sessions
+        # Security: Config manager handles encryption automatically
         self.config_manager.set_rapidapi_key(api_key)
-        log_info("RapidAPI key updated successfully")
+        
+        log_info("RapidAPI key update completed - Session and config updated successfully")
     
     def validate_api_key(self) -> Dict[str, Any]:
-        """Validate RapidAPI key with pattern, length, and live API testing"""
+        """
+        Comprehensive RapidAPI key validation with multi-layer testing
+        
+        Validation Strategy:
+        1. Format Validation: Check length, pattern, and required markers
+        2. Live API Testing: Verify authentication with actual API call
+        3. Error Categorization: Provide specific feedback for different failures
+        4. Detailed Logging: Track validation process for debugging
+        
+        Returns:
+            Dict containing validation status, messages, and detailed results
+            
+        Validation Layers:
+        - Layer 1: Format validation (offline, fast)
+        - Layer 2: Live API testing (online, slower but definitive)
+        - Layer 3: Error analysis and user guidance
+        """
+        log_info("Starting comprehensive RapidAPI key validation")
+        
+        # Pre-validation Check
         if not self.rapidapi_key:
+            log_info("Validation failed - No API key provided")
             return {'status': 'failed', 'message': 'No API key provided'}
         
+        log_info(f"Validating API key - Length: {len(self.rapidapi_key)} characters")
+        
         try:
-            # Step 1: Pattern and Length Validation
+            # Layer 1: Format and Pattern Validation
+            # Purpose: Quick offline validation to catch obvious format errors
+            # Benefits: Fast feedback, no API calls required, catches common mistakes
+            log_info("Layer 1: Starting format and pattern validation")
             format_validation = self._validate_api_key_format(self.rapidapi_key)
+            
             if format_validation['status'] == 'failed':
+                log_info(f"Format validation failed: {format_validation['message']}")
                 return format_validation
             
-            log_info(f"API key format validation passed: {format_validation['message']}")
+            log_info(f"Layer 1 passed - Format validation successful: {format_validation['message']}")
             
-            # Step 2: Live API Testing (optional - can be disabled to avoid unnecessary requests)
-            # Test with a lightweight endpoint or sample URL
+            # Layer 2: Live API Testing
+            # Purpose: Verify the key actually works with RapidAPI service
+            # Method: Make lightweight test request to validate authentication
+            # Benefits: Confirms key is active and has proper permissions
+            log_info("Layer 2: Starting live API authentication testing")
             live_validation = self._test_api_key_live()
+            
             if live_validation['status'] == 'failed':
-                # If format is good but live test fails, provide more specific error
+                log_info(f"Live validation failed: {live_validation['message']}")
+                
+                # Enhanced Error Analysis
+                # Purpose: Provide specific guidance based on failure type
+                # Strategy: Distinguish between format vs authentication issues
                 if 'Invalid API key' in live_validation['message'] or 'Unauthorized' in live_validation['message']:
-                    return {
+                    enhanced_error = {
                         'status': 'failed', 
                         'message': 'API key format is valid, but authentication failed. Please verify your RapidAPI key.',
-                        'details': live_validation['message']
+                        'details': live_validation['message'],
+                        'troubleshooting': [
+                            'Verify the API key is copied correctly from RapidAPI dashboard',
+                            'Check if your RapidAPI subscription is active',
+                            'Ensure you have subscribed to the TeraBox service',
+                            'Try generating a new API key if the current one is old'
+                        ]
                     }
+                    log_info("Enhanced error analysis: Authentication failure with valid format")
+                    return enhanced_error
+                
                 return live_validation
             
-            return {
+            log_info(f"Layer 2 passed - Live validation successful: {live_validation['message']}")
+            
+            # Validation Success
+            # Result: Both format and live testing passed
+            # Status: API key is fully validated and ready for use
+            success_result = {
                 'status': 'success', 
                 'message': 'API key is valid and working',
                 'format_check': format_validation,
-                'live_test': live_validation
+                'live_test': live_validation,
+                'validation_timestamp': time.time(),
+                'key_info': {
+                    'length': len(self.rapidapi_key),
+                    'masked_key': f"{self.rapidapi_key[:8]}...{self.rapidapi_key[-8:]}"
+                }
             }
+            
+            log_info("Comprehensive API key validation completed successfully")
+            log_info(f"Validation summary - Format: OK, Live test: OK, Key length: {len(self.rapidapi_key)}")
+            
+            return success_result
                 
         except Exception as e:
-            log_error(e, "validate_api_key")
-            return {'status': 'failed', 'message': f'Validation error: {str(e)}'}
+            # Unexpected Validation Error
+            # Causes: Network issues during live testing, configuration problems
+            # Strategy: Log full details and provide user-friendly message
+            log_error(e, "validate_api_key - unexpected error during validation")
+            log_info(f"Validation exception details - Type: {type(e).__name__}, Message: {str(e)}")
+            
+            return {
+                'status': 'failed', 
+                'message': f'Validation error: {str(e)}',
+                'error_type': type(e).__name__,
+                'troubleshooting': [
+                    'Check your internet connection',
+                    'Verify RapidAPI service is accessible',
+                    'Try again in a few moments'
+                ]
+            }
     
     def _validate_api_key_format(self, api_key: str) -> Dict[str, Any]:
         """
@@ -489,39 +692,99 @@ class TeraBoxRapidAPI:
             return {'error': f'Download failed: {str(e)}'}
     
     def _normalize_terabox_url(self, url: str) -> str:
-        """Normalize different TeraBox URL formats to work with RapidAPI"""
+        """
+        Normalize different TeraBox URL formats to work with RapidAPI
+        
+        Args:
+            url: Original TeraBox URL in any supported format
+            
+        Returns:
+            str: Normalized URL compatible with RapidAPI service
+            
+        Normalization Strategy:
+        1. Extract short URL identifier (surl) from various formats
+        2. Map domain-specific formats to standardized URLs
+        3. Handle both /s/ and ?surl= URL formats
+        4. Provide fallback for unknown formats
+        
+        Supported Domains:
+        - terasharelink.com -> preserve original format
+        - terafileshare.com -> preserve original format (NEW)
+        - 1024terabox.com -> preserve original format
+        - freeterabox.com -> preserve original format
+        - nephobox.com -> preserve original format
+        - Other domains -> convert to standard terabox.app format
+        """
+        log_info(f"Normalizing TeraBox URL: {url}")
+        5
         import re
         
-        # Handle different TeraBox URL formats
+        # URL Format Detection
+        # Purpose: Identify URL format and extract components
+        # Strategy: Use regex patterns to handle different formats
         if '/s/' in url:
-            # Extract short URL from various formats
+            log_info("Detected /s/ format URL")
+            
+            # Extract Short URL Patterns
+            # Purpose: Extract surl identifier from different URL formats
+            # Strategy: Try multiple patterns in order of specificity
             patterns = [
-                r'/s/([^/?&]+)',  # Standard /s/ format
-                r'surl=([^&]+)',  # Query parameter format
+                r'/s/([^/?&]+)',  # Standard /s/ format: /s/abc123
+                r'surl=([^&]+)',  # Query parameter format: ?surl=abc123
             ]
             
             short_url = None
-            for pattern in patterns:
+            for i, pattern in enumerate(patterns):
                 match = re.search(pattern, url)
                 if match:
                     short_url = match.group(1)
+                    log_info(f"Short URL extracted using pattern {i+1}: {short_url}")
                     break
             
             if short_url:
-                # Handle terasharelink.com and other domains
+                # Domain-Specific URL Normalization
+                # Purpose: Handle different TeraBox domains appropriately
+                # Strategy: Preserve original domain for better compatibility
+                
                 if 'terasharelink.com' in url:
-                    return f"https://terasharelink.com/s/{short_url}"
+                    normalized = f"https://terasharelink.com/s/{short_url}"
+                    log_info(f"Normalized terasharelink.com URL: {normalized}")
+                    return normalized
+                    
+                elif 'terafileshare.com' in url:  # NEW DOMAIN SUPPORT
+                    normalized = f"https://terafileshare.com/s/{short_url}"
+                    log_info(f"Normalized terafileshare.com URL: {normalized}")
+                    return normalized
+                    
                 elif '1024terabox.com' in url:
-                    return f"https://1024terabox.com/s/{short_url}"
+                    normalized = f"https://1024terabox.com/s/{short_url}"
+                    log_info(f"Normalized 1024terabox.com URL: {normalized}")
+                    return normalized
+                    
                 elif 'freeterabox.com' in url:
-                    return f"https://freeterabox.com/s/{short_url}"
+                    normalized = f"https://freeterabox.com/s/{short_url}"
+                    log_info(f"Normalized freeterabox.com URL: {normalized}")
+                    return normalized
+                    
                 elif 'nephobox.com' in url:
-                    return f"https://nephobox.com/s/{short_url}"
+                    normalized = f"https://nephobox.com/s/{short_url}"
+                    log_info(f"Normalized nephobox.com URL: {normalized}")
+                    return normalized
+                    
                 else:
-                    # Default to standard terabox format
-                    return f"https://www.terabox.app/sharing/link?surl={short_url}"
+                    # Default Normalization
+                    # Purpose: Convert unknown domains to standard format
+                    # Strategy: Use official terabox.app sharing format
+                    normalized = f"https://www.terabox.app/sharing/link?surl={short_url}"
+                    log_info(f"Normalized to standard format: {normalized}")
+                    return normalized
+            else:
+                log_info("Could not extract short URL from /s/ format")
         
-        # Return as-is if already in sharing/link format or unknown format
+        # Fallback Strategy
+        # Purpose: Handle URLs that don't match expected patterns
+        # Strategy: Return original URL and let RapidAPI handle it
+        log_info(f"URL normalization fallback - returning original: {url}")
         return url
     
     def _get_file_type(self, filename: str) -> str:
@@ -707,15 +970,43 @@ class TeraBoxRapidAPI:
         return True
     
     def get_supported_formats(self) -> List[str]:
-        """Get list of supported TeraBox URL formats"""
-        return [
+        """
+        Get comprehensive list of supported TeraBox URL formats
+        
+        Returns:
+            List of supported URL format examples
+            
+        Supported Formats:
+        - Official TeraBox domains with sharing and short link formats
+        - Mirror domains with preserved formatting
+        - Share link domains with various formats
+        - Generic patterns for new domain support
+        """
+        log_info("Retrieving supported TeraBox URL formats")
+        
+        supported_formats = [
+            # Official TeraBox Formats
             "https://www.terabox.app/sharing/link?surl=...",
             "https://terabox.com/s/...",
+            "https://www.terabox.com/sharing/link?surl=...",
+            "https://terabox.app/s/...",
+            
+            # Mirror Domain Formats
             "https://1024terabox.com/s/...",
+            "https://1024tera.com/s/...",
             "https://freeterabox.com/s/...",
             "https://nephobox.com/s/...",
-            "https://terasharelink.com/s/..."
+            "https://teraboxapp.com/s/...",
+            
+            # Share Link Domain Formats
+            "https://terasharelink.com/s/...",
+            "https://terafileshare.com/s/...",  # NEW DOMAIN SUPPORT
+            "https://www.terafileshare.com/s/...",  # NEW DOMAIN SUPPORT
         ]
+        
+        log_info(f"Supported formats list generated - {len(supported_formats)} formats available")
+        
+        return supported_formats
     
     def get_pricing_info(self) -> Dict[str, Any]:
         """Get information about RapidAPI pricing"""

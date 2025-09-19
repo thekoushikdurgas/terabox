@@ -4,6 +4,36 @@ Browser Utilities Module
 Provides centralized functionality for opening URLs in different browsers,
 similar to the test.py implementation but with enhanced error handling,
 configuration options, and Streamlit integration.
+
+This module implements a comprehensive browser management system that allows
+users to open TeraBox direct file links in their preferred browser.
+
+Key Features:
+- Multi-browser support (Chrome, Firefox, Edge, Safari)
+- Cross-platform compatibility (Windows, macOS, Linux)
+- Automatic browser detection and availability checking
+- Fallback mechanisms for failed browser launches
+- User preference management and persistence
+- Comprehensive error handling and troubleshooting
+
+Browser Management Strategy:
+- Automatic detection of installed browsers
+- Path-based browser executable location
+- Preference-based browser selection
+- Fallback to system default browser
+- Session-based preference storage
+
+Architecture Pattern: Factory + Strategy
+- BrowserManager: Factory for browser instances
+- Browser-specific strategies for different platforms
+- Unified interface for all browser operations
+- Centralized configuration and preference management
+
+Security Considerations:
+- Safe URL validation before opening
+- Browser executable path validation
+- Subprocess security for browser launching
+- Error handling to prevent system exploitation
 """
 
 import webbrowser
@@ -16,11 +46,60 @@ import logging
 from utils.config import log_info, log_error
 
 class BrowserManager:
-    """Manages browser opening functionality with multiple browser support"""
+    """
+    Manages browser opening functionality with multiple browser support
+    
+    This class provides a centralized system for managing browser operations,
+    including detection, configuration, and launching across different platforms.
+    
+    Key Responsibilities:
+    - Browser detection and availability checking
+    - Cross-platform browser path resolution
+    - User preference management and persistence
+    - Error handling and fallback mechanisms
+    - Session state integration with Streamlit
+    
+    Supported Browsers:
+    - Google Chrome (cross-platform)
+    - Mozilla Firefox (cross-platform)
+    - Microsoft Edge (Windows, Linux, macOS)
+    - Safari (macOS only)
+    - System default browser (fallback)
+    
+    Platform Support:
+    - Windows: Full support for all browsers
+    - macOS: Full support including Safari
+    - Linux: Support for open-source browsers
+    """
     
     def __init__(self):
+        """
+        Initialize browser manager with detection and configuration
+        
+        Initialization Process:
+        1. Detect available browsers on current platform
+        2. Configure browser paths and commands
+        3. Set up default browser preference
+        4. Log detection results for debugging
+        """
+        log_info("Initializing BrowserManager")
+        log_info(f"Platform detected: {platform.system()}")
+        
+        # Browser Detection and Configuration
+        # Purpose: Find all available browsers on the current system
+        # Strategy: Check standard installation paths for each platform
         self.supported_browsers = self._get_supported_browsers()
+        
+        # Default Browser Selection
+        # Purpose: Set initial browser preference
+        # Strategy: Use user preference or fall back to system default
         self.default_browser = self._get_default_browser()
+        
+        # Log initialization results
+        available_count = sum(1 for browser in self.supported_browsers.values() 
+                            if browser.get('command') or browser.get('name') == 'Default Browser')
+        log_info(f"Browser detection complete - {available_count}/{len(self.supported_browsers)} browsers available")
+        log_info(f"Default browser set to: {self.default_browser}")
     
     def _get_supported_browsers(self) -> Dict[str, Dict[str, Any]]:
         """Get list of supported browsers with their configurations"""

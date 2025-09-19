@@ -67,11 +67,13 @@ with col1:
 with col2:
     if st.button("🏠 Go Home"):
         st.session_state.current_directory = "/"
-        st.rerun()
+        # Directory changed - UI will update automatically
 
 with col3:
     if st.button("🔄 Refresh"):
-        st.rerun()
+        # Force refresh by clearing file list - UI will update automatically
+        st.session_state.file_list = []
+        st.session_state.selected_files = []
 
 # User info and quota
 with st.expander("👤 Account Information", expanded=False):
@@ -197,12 +199,12 @@ if st.session_state.file_list:
     with col2:
         if st.button("✅ Select All"):
             st.session_state.selected_files = st.session_state.file_list.copy()
-            st.rerun()
+            # Selection updated - UI will reflect changes automatically
     
     with col3:
         if st.button("❌ Clear Selection"):
             st.session_state.selected_files = []
-            st.rerun()
+            # Selection cleared - UI will reflect changes automatically
     
     st.write(f"🎯 Selected: {len(st.session_state.selected_files)} files")
     
@@ -233,7 +235,7 @@ if st.session_state.file_list:
                         new_path = file_info.get('path', '/')
                         st.session_state.current_directory = new_path
                         st.session_state.file_list = []
-                        st.rerun()
+                        # Directory changed - UI will update automatically
                 else:
                     st.write(f"{icon} {filename}")
             

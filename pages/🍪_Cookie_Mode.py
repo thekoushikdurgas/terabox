@@ -5,6 +5,8 @@ import re
 from utils.terabox_cookie_api import TeraBoxCookieAPI
 from typing import Dict, Any, List
 from utils.browser_utils import open_direct_file_link, display_browser_open_result, create_browser_selection_ui
+from utils.state_manager import StateManager, BatchStateUpdate
+from utils.ui_manager import UIManager, show_success_if
 
 def parse_tabular_cookies(cookie_data: str) -> Dict[str, str]:
     """
@@ -570,7 +572,7 @@ with col1:
                     st.session_state.current_cookie = processed_cookie
                     st.session_state.raw_cookie_input = cookie_input.strip()
                     st.success("✅ Cookie is valid!")
-                    st.rerun()
+                    # Cookie validated - UI will update automatically
                 elif validation_result['status'] == 'warning':
                     st.session_state.cookie_api = api
                     st.session_state.current_cookie = processed_cookie
@@ -598,7 +600,7 @@ with col1:
             st.session_state.current_cookie = ""
             st.session_state.raw_cookie_input = ""
             st.success("Cookie cleared!")
-            st.rerun()
+            # Cookie cleared - UI will update on next interaction
 
 with col2:
     if st.session_state.cookie_api:

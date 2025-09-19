@@ -1,6 +1,48 @@
 """
 TeraBox Configuration Management
-Handles configuration, credentials, and settings for both unofficial and official modes
+Handles comprehensive configuration, credentials, and settings for all TeraDL modes
+
+This module provides a centralized configuration management system that handles
+all aspects of TeraDL configuration across different modes and components.
+
+Configuration Architecture:
+- Hierarchical configuration loading (base -> advanced -> environment)
+- Secure credential storage with encryption
+- Mode-specific configuration sections
+- Environment variable override support
+- Configuration validation and error handling
+
+Configuration Hierarchy (in order of precedence):
+1. Environment Variables (highest priority)
+2. Advanced Configuration File (teradl_config.json)
+3. Base Configuration File (utils/config.json)
+4. Default Values (lowest priority)
+
+Security Features:
+- Credential encryption using Fernet symmetric encryption
+- Keyring integration for secure key storage
+- Session-based fallback for encryption keys
+- Sensitive data masking in logs and exports
+- Automatic credential validation
+
+Supported Modes:
+- App: General application settings and preferences
+- RapidAPI: Commercial API service configuration
+- Unofficial: Scraping mode settings and retry policies
+- Official: OAuth API credentials and endpoints
+- Cookie: Session cookie management settings
+- Browser: Browser selection and behavior settings
+- Cache: Response caching and performance settings
+- Network: HTTP client and connection settings
+- Logging: Debug and audit log configuration
+- Security: Encryption and session management
+
+Configuration Patterns:
+- Dataclass-based configuration objects for type safety
+- Centralized config manager with unified interface
+- Automatic configuration persistence and loading
+- Validation and error recovery mechanisms
+- Export/import functionality for configuration backup
 """
 
 import os
@@ -12,6 +54,7 @@ import keyring
 from cryptography.fernet import Fernet
 import base64
 from pathlib import Path
+from utils.config import log_info, log_error
 
 @dataclass
 class RapidAPIConfig:
@@ -120,15 +163,75 @@ class AppConfig:
     default_download_dir: str = "download"
 
 class TeraBoxConfigManager:
-    """Configuration manager for TeraBox settings"""
+    """
+    Comprehensive configuration manager for TeraBox settings
+    
+    This class provides centralized management of all TeraDL configuration aspects,
+    including secure credential storage, hierarchical configuration loading,
+    and environment variable integration.
+    
+    Configuration Management Features:
+    - Hierarchical configuration loading with proper precedence
+    - Secure encryption of sensitive credentials
+    - Environment variable override support
+    - Configuration validation and error recovery
+    - Export/import functionality for backup and migration
+    - Automatic configuration persistence
+    
+    Security Architecture:
+    - Fernet symmetric encryption for sensitive data
+    - Keyring integration for secure key storage
+    - Session-based fallback for encryption keys
+    - Credential masking in logs and exports
+    - Secure configuration file handling
+    
+    Configuration Sections:
+    - App: General application settings
+    - RapidAPI: Commercial API service settings
+    - Unofficial: Scraping mode configuration
+    - Official: OAuth API credentials and settings
+    - Cookie: Session cookie management
+    - Browser: Browser preferences and settings
+    - Cache: Response caching configuration
+    - Network: HTTP client settings
+    - Logging: Debug and audit configuration
+    - Security: Encryption and session settings
+    """
     
     def __init__(self):
-        self.config_file = "teradl_config.json"  # Advanced config file
-        self.base_config_file = "utils/config.json"  # Base config file
-        self.keyring_service = "TeraDL"
-        self.encryption_key = self._get_or_create_encryption_key()
+        """
+        Initialize configuration manager with secure setup
         
-        # Load configurations
+        Initialization Process:
+        1. Set up configuration file paths
+        2. Initialize encryption system for sensitive data
+        3. Create default configuration objects
+        4. Load configuration from all sources (files + environment)
+        5. Log initialization status and configuration summary
+        """
+        log_info("Initializing TeraBoxConfigManager")
+        
+        # Configuration File Paths
+        # Purpose: Define configuration file hierarchy
+        # Strategy: Advanced config overrides base config
+        self.config_file = "teradl_config.json"  # Advanced/user config file
+        self.base_config_file = "utils/config.json"  # Base configuration file
+        self.keyring_service = "TeraDL"  # Keyring service name for credential storage
+        
+        log_info(f"Configuration files - Base: {self.base_config_file}, Advanced: {self.config_file}")
+        
+        # Encryption System Initialization
+        # Purpose: Set up secure storage for sensitive credentials
+        # Strategy: Use system keyring or session-based fallback
+        self.encryption_key = self._get_or_create_encryption_key()
+        log_info("Encryption system initialized for secure credential storage")
+        
+        # Configuration Objects Initialization
+        # Purpose: Create typed configuration objects for each section
+        # Pattern: Dataclass-based configuration with defaults
+        # Benefits: Type safety, IDE support, validation
+        log_info("Creating configuration objects with default values")
+        
         self.app_config = AppConfig()
         self.rapidapi_config = RapidAPIConfig()
         self.unofficial_config = UnofficialConfig()
@@ -140,7 +243,15 @@ class TeraBoxConfigManager:
         self.logging_config = LoggingConfig()
         self.security_config = SecurityConfig()
         
+        log_info("Default configuration objects created successfully")
+        
+        # Hierarchical Configuration Loading
+        # Purpose: Load and apply configuration from all sources
+        # Order: Base config -> Advanced config -> Environment variables
+        log_info("Starting hierarchical configuration loading process")
         self._load_config()
+        
+        log_info("TeraBoxConfigManager initialization completed successfully")
     
     def _get_or_create_encryption_key(self) -> bytes:
         """Get or create encryption key for sensitive data"""

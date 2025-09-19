@@ -1,3 +1,32 @@
+"""
+TeraDL Main Application
+Streamlit-based TeraBox file downloader and streaming platform
+
+This is the main entry point for the TeraDL application, providing a unified interface
+for accessing TeraBox files through multiple methods:
+
+Application Architecture:
+- Multi-mode support: Unofficial, Cookie, Official API, RapidAPI
+- State management: Centralized session state handling
+- UI management: Responsive interface with progress tracking
+- Error handling: Comprehensive error recovery and user guidance
+- Browser integration: Direct file link opening in preferred browser
+
+Design Patterns:
+- Strategy Pattern: Different extraction modes with common interface
+- State Pattern: Session state management for UI consistency
+- Facade Pattern: Simplified interface hiding complexity
+- Observer Pattern: Progress tracking and status updates
+
+Key Features:
+- Unified extraction interface across all modes
+- Real-time progress tracking for long operations
+- Intelligent error handling with user guidance
+- Browser integration for direct file access
+- File filtering and sorting capabilities
+- Responsive design with mobile support
+"""
+
 import streamlit as st
 import requests
 import os
@@ -12,6 +41,9 @@ from typing import Dict, Any, List
 import base64
 import json
 from utils.browser_utils import open_direct_file_link, display_browser_open_result, create_browser_selection_ui
+from utils.state_manager import StateManager, BatchStateUpdate
+from utils.ui_manager import UIManager, show_success_if, show_error_if
+from utils.config import log_info, log_error
 
 # Page configuration
 st.set_page_config(
@@ -78,19 +110,46 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Initialize session state
+# Session State Initialization
+# Purpose: Initialize critical application state variables
+# Pattern: Defensive initialization to prevent KeyError exceptions
+# Strategy: Only initialize if not already present to preserve user data
+log_info("Initializing application session state")
+
 if 'files_data' not in st.session_state:
     st.session_state.files_data = None
+    log_info("Initialized files_data state")
+
 if 'extraction_params' not in st.session_state:
     st.session_state.extraction_params = None
+    log_info("Initialized extraction_params state")
+
 if 'api_mode' not in st.session_state:
-    st.session_state.api_mode = 'unofficial'
+    st.session_state.api_mode = 'unofficial'  # Default to unofficial mode
+    log_info("Initialized api_mode state with default: unofficial")
+
 if 'official_api' not in st.session_state:
     st.session_state.official_api = None
+    log_info("Initialized official_api state")
+
 if 'cookie_api' not in st.session_state:
     st.session_state.cookie_api = None
+    log_info("Initialized cookie_api state")
+
 if 'rapidapi_client' not in st.session_state:
     st.session_state.rapidapi_client = None
+    log_info("Initialized rapidapi_client state")
+
+# Log current session state for debugging
+active_apis = []
+if st.session_state.official_api:
+    active_apis.append("Official")
+if st.session_state.cookie_api:
+    active_apis.append("Cookie")
+if st.session_state.rapidapi_client:
+    active_apis.append("RapidAPI")
+
+log_info(f"Session state initialization complete - Active APIs: {active_apis if active_apis else 'None'}, Mode: {st.session_state.api_mode}")
 
 def display_header():
     """Display the main header"""
@@ -114,23 +173,71 @@ def display_mode_indicator(mode: int):
     ''', unsafe_allow_html=True)
 
 def extract_files_from_url(url: str, mode: int = None) -> Dict[str, Any]:
-    """Extract files from TeraBox URL with enhanced error handling"""
+    """
+    Extract files from TeraBox URL with comprehensive error handling and mode routing
+    
+    This function serves as the central dispatcher for file extraction across all
+    supported modes, providing a unified interface regardless of the underlying method.
+    
+    Args:
+        url: TeraBox share URL to process
+        mode: Processing mode for unofficial extraction (1, 2, or 3)
+        
+    Returns:
+        Dict containing extraction results or error information
+        
+    Processing Flow:
+    1. Determine active API mode from session state
+    2. Route to appropriate extraction method
+    3. Handle mode-specific initialization and processing
+    4. Provide unified result format across all modes
+    5. Comprehensive error handling and user feedback
+    
+    Mode Routing:
+    - unofficial: Uses TeraboxCore with configurable processing modes
+    - official: Uses TeraBox Official API with OAuth authentication
+    - cookie: Uses session cookie for authenticated requests
+    - rapidapi: Uses commercial RapidAPI service
+    """
+    log_info(f"Starting file extraction - URL: {url[:100]}{'...' if len(url) > 100 else ''}")
+    log_info(f"Extraction parameters - Mode: {mode}, Session API mode: {st.session_state.api_mode}")
+    
+    # UI Progress Tracking
+    # Purpose: Provide visual feedback for long-running operations
+    # Pattern: Progress bar + status text for detailed feedback
     progress_bar = st.progress(0)
     status_text = st.empty()
     
     try:
+        # API Mode Determination
+        # Purpose: Route request to appropriate extraction method
+        # Source: Session state maintains user's mode selection
         api_mode = st.session_state.api_mode
+        log_info(f"Routing extraction to {api_mode} mode")
         
         if api_mode == 'unofficial':
+            # Unofficial Mode Processing
+            # Strategy: Direct scraping using TeraboxCore
+            # Benefits: No authentication required, works immediately
+            # Limitations: May be blocked, limited to share links
+            log_info(f"Processing with unofficial mode {mode}")
+            
             status_text.text("🔧 Initializing TeraBox processor...")
             progress_bar.progress(20)
             
+            # Initialize TeraBox core processor with specified mode
             terabox = TeraboxCore(mode=mode)
+            log_info(f"TeraboxCore initialized successfully for mode {mode}")
             
             status_text.text("🔍 Extracting files from TeraBox URL...")
             progress_bar.progress(40)
             
+            # Execute extraction with comprehensive logging
+            extraction_start = time.time()
             result = terabox.extract_files(url)
+            extraction_duration = time.time() - extraction_start
+            
+            log_info(f"Unofficial extraction completed in {extraction_duration:.2f}s - Status: {result.get('status', 'unknown')}")
             
         elif api_mode == 'official':  # Official API mode
             if not st.session_state.official_api or not st.session_state.official_api.is_authenticated():
@@ -224,53 +331,102 @@ def extract_files_from_url(url: str, mode: int = None) -> Dict[str, Any]:
                 }
         
         elif api_mode == 'rapidapi':  # RapidAPI mode
+            # RapidAPI Mode Processing
+            # Strategy: Commercial API service for guaranteed reliability
+            # Benefits: Professional support, SLA guarantees, no anti-bot issues
+            # Requirements: Valid RapidAPI subscription and API key
+            log_info("Processing with RapidAPI commercial service")
+            
+            # Pre-flight Validation
+            # Purpose: Ensure RapidAPI client is properly configured
+            # Failure Mode: Early exit with clear error message
             if not st.session_state.rapidapi_client:
-                return {'status': 'failed', 'message': 'RapidAPI client not configured. Please set up API key in RapidAPI Mode page.'}
+                error_msg = 'RapidAPI client not configured. Please set up API key in RapidAPI Mode page.'
+                log_info(f"RapidAPI processing failed - {error_msg}")
+                return {'status': 'failed', 'message': error_msg}
             
             status_text.text("🔧 Initializing RapidAPI client...")
             progress_bar.progress(20)
             
             rapidapi_client = st.session_state.rapidapi_client
+            log_info(f"RapidAPI client retrieved from session state - Cache enabled: {rapidapi_client.is_cache_enabled()}")
             
             status_text.text("🔍 Processing TeraBox URL via RapidAPI...")
             progress_bar.progress(40)
             
-            # Get file info using enhanced RapidAPI
+            # Execute RapidAPI File Information Request
+            # Purpose: Get file metadata and download links from commercial service
+            # Features: Automatic caching, multiple URL generation, error recovery
+            api_start = time.time()
             file_info = rapidapi_client.get_file_info(url)
+            api_duration = time.time() - api_start
             
+            log_info(f"RapidAPI file info request completed in {api_duration:.2f}s")
+            
+            # Response Processing and Validation
             if 'error' in file_info:
-                result = {'status': 'failed', 'message': file_info['error']}
+                # API Error Handling
+                # Purpose: Provide specific error feedback for API failures
+                # Strategy: Log detailed error info for debugging
+                error_message = file_info['error']
+                log_error(Exception(f"RapidAPI error: {error_message}"), "extract_files_from_url")
+                log_info(f"RapidAPI error details - URL: {url}, Error: {error_message}")
+                
+                result = {'status': 'failed', 'message': error_message}
             else:
-                # Convert to our standard format with enhanced data
+                # Success Response Processing
+                # Purpose: Convert RapidAPI response to unified format
+                # Strategy: Preserve all RapidAPI data while standardizing interface
+                log_info(f"RapidAPI success - File: {file_info.get('file_name', 'Unknown')}, Size: {file_info.get('size', 'Unknown')}")
+                log_info(f"RapidAPI response features - Direct link: {bool(file_info.get('direct_link'))}, Thumbnail: {bool(file_info.get('thumbnail'))}")
+                
+                # Check if response was cached
+                if file_info.get('_cache_info', {}).get('cached', False):
+                    cache_age = file_info['_cache_info'].get('cache_age_hours', 0)
+                    log_info(f"Response served from cache - Age: {cache_age:.1f} hours")
+                else:
+                    log_info("Response served from live API call - will be cached for future requests")
+                
+                # Convert to Unified Format
+                # Purpose: Standardize response format across all modes
+                # Strategy: Map RapidAPI fields to common interface
                 result = {
                     'status': 'success',
-                    'uk': '',  # RapidAPI doesn't provide these
-                    'shareid': '',
-                    'sign': '',
-                    'timestamp': str(int(time.time())),
-                    'service': 'rapidapi',
+                    'uk': '',  # RapidAPI doesn't provide these TeraBox internal IDs
+                    'shareid': '',  # Not available in commercial API
+                    'sign': '',  # Not needed for RapidAPI
+                    'timestamp': str(int(time.time())),  # Current timestamp
+                    'service': 'rapidapi',  # Service identifier
                     'list': [{
-                        'is_dir': 0,
-                        'path': '/' + file_info.get('file_name', 'unknown'),
-                        'fs_id': '',  # RapidAPI doesn't provide fs_id
-                        'name': file_info.get('file_name', 'Unknown'),
-                        'type': file_info.get('file_type', 'other'),
-                        'size': str(file_info.get('sizebytes', 0)),
-                        'image': file_info.get('thumbnail', ''),
-                        'list': [],
+                        # File Metadata
+                        'is_dir': 0,  # RapidAPI only handles files, not directories
+                        'path': '/' + file_info.get('file_name', 'unknown'),  # Virtual path
+                        'fs_id': '',  # Not provided by RapidAPI
+                        'name': file_info.get('file_name', 'Unknown'),  # Display name
+                        'type': file_info.get('file_type', 'other'),  # File category
+                        'size': str(file_info.get('sizebytes', 0)),  # Size in bytes
+                        'image': file_info.get('thumbnail', ''),  # Preview image
+                        'list': [],  # No subdirectories in RapidAPI
+                        
+                        # Download Links (Multiple URLs for Redundancy)
                         'download_link': file_info.get('direct_link', ''),  # Primary download link
                         'rapidapi_link': file_info.get('download_link', ''),  # Alternative link
                         'backup_link': file_info.get('link', ''),  # Backup link
-                        'rapidapi_data': file_info,  # Store full RapidAPI response
+                        
+                        # RapidAPI Specific Data
+                        'rapidapi_data': file_info,  # Complete RapidAPI response for debugging
                         'service_info': {
-                            'provider': 'RapidAPI',
-                            'service': file_info.get('service', 'rapidapi'),
-                            'multiple_urls': bool(file_info.get('direct_link') and file_info.get('download_link')),
-                            'has_thumbnail': bool(file_info.get('thumbnail')),
-                            'validated': True
+                            'provider': 'RapidAPI',  # Service provider
+                            'service': file_info.get('service', 'rapidapi'),  # Service type
+                            'multiple_urls': bool(file_info.get('direct_link') and file_info.get('download_link')),  # URL redundancy
+                            'has_thumbnail': bool(file_info.get('thumbnail')),  # Preview availability
+                            'validated': True,  # Commercial service validation
+                            'cache_status': 'cached' if file_info.get('_cache_info', {}).get('cached') else 'fresh'
                         }
                     }]
                 }
+                
+                log_info(f"RapidAPI response converted to unified format - Files: {len(result['list'])}")
         
         else:
             return {'status': 'failed', 'message': f'Unknown API mode: {api_mode}'}
@@ -755,14 +911,43 @@ def main():
         if st.button("🗑️ Clear Results"):
             st.session_state.files_data = None
             st.session_state.extraction_params = None
-            st.rerun()
+            # Results cleared - using state manager for clean updates
+            StateManager.update_multiple_states({
+                'files_data': None,
+                'extraction_params': None
+            }, "Results cleared successfully!")
     
     # Main content area
     if extract_button and terabox_url:
-        # Validate URL
-        if not any(domain in terabox_url.lower() for domain in ['terabox', '1024terabox', 'freeterabox', 'nephobox']):
+        # URL Validation
+        # Purpose: Validate TeraBox URL before processing
+        # Strategy: Check against known TeraBox domain patterns
+        # Security: Prevent processing of non-TeraBox URLs
+        log_info(f"User initiated file extraction - URL: {terabox_url}")
+        
+        # Enhanced Domain Validation
+        # Purpose: Support all known TeraBox domains including new ones
+        # Strategy: Check for domain keywords in URL
+        valid_domains = ['terabox', '1024terabox', 'freeterabox', 'nephobox', 'terasharelink', 'terafileshare']
+        
+        if not any(domain in terabox_url.lower() for domain in valid_domains):
+            error_msg = f"Invalid TeraBox URL - Domain not recognized: {terabox_url}"
+            log_error(Exception(error_msg), "main - URL validation")
             st.error("❌ Please enter a valid TeraBox URL")
+            
+            # Show supported domains for user guidance
+            with st.expander("📋 Supported TeraBox Domains"):
+                st.markdown("""
+                **Supported domains:**
+                - terabox.com, terabox.app
+                - 1024terabox.com, 1024tera.com
+                - freeterabox.com, nephobox.com
+                - terasharelink.com, terafileshare.com
+                - And other TeraBox variants
+                """)
             return
+        
+        log_info(f"URL validation passed - Domain recognized in: {terabox_url}")
         
         # Extract files
         result = extract_files_from_url(terabox_url, mode)
@@ -778,7 +963,9 @@ def main():
                 'js_token': result.get('js_token'),
                 'cookie': result.get('cookie')
             }
-            st.rerun()
+            # Files extracted successfully - using state manager
+            StateManager.update_state('files_extracted', True)
+            # UI will update automatically to show the files
         else:
             error_msg = result.get('message', 'Unknown error occurred')
             
@@ -800,7 +987,8 @@ def main():
                 with col1:
                     if st.button("🔄 Retry with Mode 3"):
                         st.session_state.retry_mode_3 = True
-                        st.rerun()
+                        # Retry flag set - using state manager
+                        StateManager.update_state('retry_mode_3', True)
                 
                 with col2:
                     if st.button("🔧 Open Diagnostics"):

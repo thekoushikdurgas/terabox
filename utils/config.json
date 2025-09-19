@@ -10,7 +10,8 @@
       "default_download_dir": "output/download"
     },
     "rapidapi": {
-      "api_key": "126888d623msh778fbeb4650c6b3p1d2f71jsndcba38933d79",
+      "api_key": "bac1b38dbamsh7603892419d5fbcp130e37jsnf1ee9d78e339",
+      "api_key1": "bfa3badc00msh85dd262668d4e7fp146cebjsnc55b1d0c2132",
       "base_url": "https://terabox-downloader-direct-download-link-generator2.p.rapidapi.com",
       "host": "terabox-downloader-direct-download-link-generator2.p.rapidapi.com",
       "timeout": 30,

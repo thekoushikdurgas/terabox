@@ -1,0 +1,28 @@
+{
+  "cache_metadata": {
+    "timestamp": 1758273916.9284048,
+    "created_at": "2025-09-19T14:55:16.928410",
+    "terabox_url": "https://terasharelink.com/s/1vy-DecmBFe8B38lkLWiPlw",
+    "surl": "1vy-DecmBFe8B38lkLWiPlw",
+    "ttl_hours": 24,
+    "cache_version": "1.0"
+  },
+  "response_data": {
+    "direct_link": "https://data.1024tera.com/file/3a371f285dffa5a1a025ffcbe0dee8bd?bkt=en-2d9e6f81f9f5bca0fbc11f9f76f6c6662178279a947aa99b259b95b102056f102b52df80cc9ed1402a0165f06b952db99ecf0a09d0544fd7dfdf963c4572f586&fid=4398293442739-250528-800831308993581&time=1758273919&sign=FDTAXUGERLQlBHSKfWon-DCb740ccc5511e5e8fedcff06b081203-pyhGOHppkuEKFG52J3fM5sKCF2I%3D&to=139&size=702865&sta_dx=702865&sta_cs=0&sta_ft=mp4&sta_ct=7&sta_mt=6&fm2=MH%2Ctky%2CAnywhere%2C%2C%2Cany&region=tky&ctime=1693028784&mtime=1740659120&resv0=-1&resv1=0&resv2=&resv3=&resv4=702865&vuk=4400324488320&iv=0&htype=&randtype=&newver=1&newfm=1&secfm=1&flow_ver=3&pkey=en-7432bf6ea7138d615f70e0ff5ad9f9e303e38eaf0373cc6c88c1f02cd630d89ac5bb45889c9f0c84143965f045f0902b782a662c39ce8209305a5e1275657320&sl=68091977&expires=1758302719&rt=sh&r=136020751&sh=1&fin=2023-08-26-13-46-21%283%29.mp4&fn=2023-08-26-13-46-21%283%29.mp4&dp-logid=305555237633845530&dp-callid=0.1&hps=1&tsl=2000&csl=2000&fsl=-1&csign=HFbQ34KY2mYxb9Jq6qwZZWKYz0M%3D&so=0&ut=6&uter=4&serv=1&uc=4189859446&ti=3d5c853be3bd69c66fc3de19ccee258976973998c6bdfa2d&tuse=&raw_appid=0&ogr=0&rregion=XVVi&adg=c_50d427470e5f1e2089d189f376eb2776&reqlabel=250528_f_75e13b5aaad17925fe97718208f9857f_-1_65c2cbff238e25143c22978f8c4bde8e&ccn=SG&by=themis",
+    "download_link": "https://d.1024tera.com/file/3a371f285dffa5a1a025ffcbe0dee8bd?fid=4398293442739-250528-800831308993581&dstime=1758273918&rt=sh&sign=FDtAER-DCb740ccc5511e5e8fedcff06b081203-c8dQzEjdK9k7kRVPiLqEEUyrK7w%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=305555237633845530&dp-callid=0&r=136020751&sh=1&region=jp",
+    "file_name": "2023-08-26-13-46-21(3).mp4",
+    "size": "686.39 KB",
+    "sizebytes": 702865,
+    "thumbnail": "https://data.1024tera.com/thumbnail/3a371f285dffa5a1a025ffcbe0dee8bd?fid=4398293442739-250528-800831308993581&time=1758272400&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-NWT5bsYk%2FvucquCjb1NKojOKQPQ%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=305555237633845530&dp-callid=0&size=c850_u580&quality=100&vuk=-&ft=video",
+    "file_type": "video",
+    "service": "rapidapi",
+    "raw_response": {
+      "direct_link": "https://data.1024tera.com/file/3a371f285dffa5a1a025ffcbe0dee8bd?bkt=en-2d9e6f81f9f5bca0fbc11f9f76f6c6662178279a947aa99b259b95b102056f102b52df80cc9ed1402a0165f06b952db99ecf0a09d0544fd7dfdf963c4572f586&fid=4398293442739-250528-800831308993581&time=1758273919&sign=FDTAXUGERLQlBHSKfWon-DCb740ccc5511e5e8fedcff06b081203-pyhGOHppkuEKFG52J3fM5sKCF2I%3D&to=139&size=702865&sta_dx=702865&sta_cs=0&sta_ft=mp4&sta_ct=7&sta_mt=6&fm2=MH%2Ctky%2CAnywhere%2C%2C%2Cany&region=tky&ctime=1693028784&mtime=1740659120&resv0=-1&resv1=0&resv2=&resv3=&resv4=702865&vuk=4400324488320&iv=0&htype=&randtype=&newver=1&newfm=1&secfm=1&flow_ver=3&pkey=en-7432bf6ea7138d615f70e0ff5ad9f9e303e38eaf0373cc6c88c1f02cd630d89ac5bb45889c9f0c84143965f045f0902b782a662c39ce8209305a5e1275657320&sl=68091977&expires=1758302719&rt=sh&r=136020751&sh=1&fin=2023-08-26-13-46-21%283%29.mp4&fn=2023-08-26-13-46-21%283%29.mp4&dp-logid=305555237633845530&dp-callid=0.1&hps=1&tsl=2000&csl=2000&fsl=-1&csign=HFbQ34KY2mYxb9Jq6qwZZWKYz0M%3D&so=0&ut=6&uter=4&serv=1&uc=4189859446&ti=3d5c853be3bd69c66fc3de19ccee258976973998c6bdfa2d&tuse=&raw_appid=0&ogr=0&rregion=XVVi&adg=c_50d427470e5f1e2089d189f376eb2776&reqlabel=250528_f_75e13b5aaad17925fe97718208f9857f_-1_65c2cbff238e25143c22978f8c4bde8e&ccn=SG&by=themis",
+      "file_name": "2023-08-26-13-46-21(3).mp4",
+      "link": "https://d.1024tera.com/file/3a371f285dffa5a1a025ffcbe0dee8bd?fid=4398293442739-250528-800831308993581&dstime=1758273918&rt=sh&sign=FDtAER-DCb740ccc5511e5e8fedcff06b081203-c8dQzEjdK9k7kRVPiLqEEUyrK7w%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=305555237633845530&dp-callid=0&r=136020751&sh=1&region=jp",
+      "size": "686.39 KB",
+      "sizebytes": 702865,
+      "thumb": "https://data.1024tera.com/thumbnail/3a371f285dffa5a1a025ffcbe0dee8bd?fid=4398293442739-250528-800831308993581&time=1758272400&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-NWT5bsYk%2FvucquCjb1NKojOKQPQ%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=305555237633845530&dp-callid=0&size=c850_u580&quality=100&vuk=-&ft=video"
+    }
+  }
+}

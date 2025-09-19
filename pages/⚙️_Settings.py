@@ -1,8 +1,48 @@
+"""
+Settings Page - Comprehensive Configuration Management Interface
+
+This page provides a centralized interface for managing all TeraDL configuration
+settings across different modes and components.
+
+Page Architecture:
+- Tab-based organization for different configuration categories
+- Real-time validation and feedback for settings changes
+- Import/export functionality for configuration backup
+- Status monitoring and diagnostics
+- Secure credential management with encryption
+
+Configuration Categories:
+- General: Application-wide settings and preferences
+- Browser: Browser selection and behavior configuration
+- RapidAPI: Commercial API service settings and credentials
+- Unofficial: Scraping mode configuration and retry policies
+- Official API: OAuth credentials and API settings
+- Advanced: Expert settings and configuration management
+- Status: Configuration overview and system information
+- Cache: Response caching and performance settings
+
+Security Features:
+- Encrypted credential storage and display
+- Secure API key management with masking
+- Configuration validation and integrity checking
+- Audit trail for configuration changes
+- Safe import/export with sensitive data filtering
+
+UI Patterns:
+- Form-based configuration with immediate validation
+- Conditional rendering based on configuration state
+- Progress indicators for long-running operations
+- Comprehensive error handling and user feedback
+- Context-sensitive help and documentation
+"""
+
 import streamlit as st
 import json
 from utils.terabox_config import get_config_manager, AppConfig, UnofficialConfig, OfficialAPIConfig
 from typing import Dict, Any
 from utils.browser_utils import get_browser_manager, create_browser_selection_ui
+from utils.state_manager import StateManager, BatchStateUpdate
+from utils.config import log_info, log_error
 
 # Import time for file modification display
 import time
@@ -15,8 +55,12 @@ st.set_page_config(
 st.title("⚙️ TeraDL Settings")
 st.markdown("Configure TeraDL application settings, API credentials, and preferences.")
 
-# Get configuration manager
+# Configuration Manager Initialization
+# Purpose: Get centralized configuration manager for settings management
+# Pattern: Singleton pattern ensures consistent configuration across app
+log_info("Settings page loaded - initializing configuration manager")
 config_mgr = get_config_manager()
+log_info("Configuration manager retrieved successfully")
 
 # Tabs for different settings categories
 tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs(["🎯 General", "🌐 Browser", "💳 RapidAPI", "🎪 Unofficial Mode", "🏢 Official API", "🔧 Advanced", "📊 Status", "💾 Cache"])
@@ -87,7 +131,7 @@ with tab1:
             default_download_dir=download_dir
         )
         st.success("✅ General settings saved!")
-        st.rerun()
+        # Settings saved successfully - no rerun needed for simple save operations
 
 # ============================================================================
 # Browser Settings Tab
@@ -274,7 +318,7 @@ with tab3:
         
         config_mgr.update_rapidapi_config(**update_kwargs)
         st.success("✅ RapidAPI settings saved!")
-        st.rerun()
+        # Settings saved successfully - no rerun needed
     
     # API Key Management
     st.subheader("🔐 API Key Management")
@@ -299,7 +343,8 @@ with tab3:
         if st.button("🗑️ Clear API Key"):
             config_mgr.clear_rapidapi_key()
             st.success("🗑️ API key cleared!")
-            st.rerun()
+            # API key cleared - using state manager for clean updates
+            StateManager.update_state('rapidapi_key_cleared', True)
     
     # Configuration Status
     st.subheader("📊 Configuration Status")
@@ -382,7 +427,7 @@ with tab4:
             enable_logging=enable_logging
         )
         st.success("✅ Unofficial mode settings saved!")
-        st.rerun()
+        # Settings saved successfully - no rerun needed
     
     # Mode descriptions
     with st.expander("ℹ️ Processing Mode Details"):
@@ -427,7 +472,8 @@ with tab5:
             if st.button("🗑️ Clear Credentials", type="secondary"):
                 config_mgr.clear_official_credentials()
                 st.success("✅ Credentials cleared!")
-                st.rerun()
+                # Credentials cleared - using state manager for clean updates
+                StateManager.update_state('official_credentials_cleared', True)
     else:
         st.warning("⚠️ No API credentials configured")
         st.session_state.show_credential_form = True
@@ -463,14 +509,15 @@ with tab5:
                         config_mgr.set_official_credentials(client_id, client_secret, private_secret)
                         st.success("✅ Credentials saved successfully!")
                         st.session_state.show_credential_form = False
-                        st.rerun()
+                        # Credentials saved - using state manager for clean state updates
+                        StateManager.update_state('credentials_saved', True)
                     else:
                         st.error("❌ Please fill in all credential fields")
             
             with col2:
                 if st.form_submit_button("❌ Cancel"):
                     st.session_state.show_credential_form = False
-                    st.rerun()
+                    # Form cancelled - no rerun needed
     
     # API Settings
     st.subheader("🔧 API Configuration")
@@ -516,7 +563,7 @@ with tab5:
             token_refresh_threshold=token_refresh_threshold
         )
         st.success("✅ API settings saved!")
-        st.rerun()
+        # API settings saved - no rerun needed
 
 # ============================================================================
 # Advanced Settings Tab
@@ -558,7 +605,8 @@ with tab6:
                 if st.button("📥 Import Config"):
                     if config_mgr.import_config(config_data):
                         st.success("✅ Configuration imported successfully!")
-                        st.rerun()
+                        # Config imported - using state manager for clean updates
+                        StateManager.update_state('config_imported', True)
                     else:
                         st.error("❌ Failed to import configuration")
             except Exception as e:
@@ -572,7 +620,8 @@ with tab6:
         if st.button("⚠️ Confirm Reset", type="secondary"):
             config_mgr.reset_to_defaults()
             st.success("✅ Settings reset to defaults!")
-            st.rerun()
+            # Settings reset - using state manager for clean updates
+            StateManager.update_state('settings_reset', True)
     
     # Environment variables
     st.subheader("🌍 Environment Variables")
@@ -676,7 +725,7 @@ with tab7:
         if st.button("🔄 Reload Config"):
             config_mgr._load_config()
             st.success("✅ Configuration reloaded!")
-            st.rerun()
+            # Config reloaded - no immediate rerun needed
     
     with col2:
         if st.button("💾 Save Config"):
@@ -770,7 +819,7 @@ with tab8:
                         
                         if files_data:
                             df = pd.DataFrame(files_data)
-                            st.dataframe(df, use_container_width=True, hide_index=True)
+                            st.dataframe(df, width='stretch', hide_index=True)
                 else:
                     st.error(f"❌ Error getting cache stats: {cache_stats.get('error', 'Unknown error')}")
             

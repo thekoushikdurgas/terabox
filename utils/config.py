@@ -34,7 +34,8 @@ class AppConfig:
                 '1024terabox.com', 
                 'freeterabox.com',
                 'nephobox.com',
-                'terasharelink.com'
+                'terasharelink.com',
+                'terafileshare.com'  # NEW DOMAIN SUPPORT
             ]
 
 # Global configuration instance
@@ -88,12 +89,22 @@ def sanitize_filename(filename: str) -> str:
     return filename
 
 def log_error(error: Exception, context: str = "") -> None:
-    """Log error with context"""
-    logger.error(f"Error in {context}: {type(error).__name__}: {str(error)}")
+    """Log error with context and Unicode safety"""
+    try:
+        logger.error(f"Error in {context}: {type(error).__name__}: {str(error)}")
+    except UnicodeEncodeError:
+        # Fallback: replace Unicode characters with ASCII equivalents
+        error_str = str(error).encode('ascii', errors='replace').decode('ascii')
+        logger.error(f"[Unicode Error - Message Sanitized] Error in {context}: {type(error).__name__}: {error_str}")
 
 def log_info(message: str) -> None:
-    """Log info message"""
-    logger.info(message)
+    """Log info message with Unicode safety"""
+    try:
+        logger.info(message)
+    except UnicodeEncodeError:
+        # Fallback: replace Unicode characters with ASCII equivalents
+        safe_message = message.encode('ascii', errors='replace').decode('ascii')
+        logger.info(f"[Unicode Error - Message Sanitized] {safe_message}")
 
 def format_file_size(size_bytes: int) -> str:
     """Format file size in human readable format"""
