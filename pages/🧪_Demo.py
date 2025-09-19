@@ -1,5 +1,5 @@
 import streamlit as st
-from terabox_core import TeraboxCore
+from utils.terabox_core import TeraboxCore
 import json
 
 st.set_page_config(

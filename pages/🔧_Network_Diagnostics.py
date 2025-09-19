@@ -3,7 +3,7 @@ import requests
 import time
 import socket
 from urllib.parse import urlparse
-from terabox_core import TeraboxCore
+from utils.terabox_core import TeraboxCore
 import json
 
 st.set_page_config(

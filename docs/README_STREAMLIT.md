@@ -10,7 +10,7 @@ A modern Streamlit web application for downloading and streaming files from Tera
 - **📥 Direct Downloads**: Download files directly through the web interface
 - **🎥 Video Streaming**: Stream videos directly in the browser
 - **📁 Folder Support**: Navigate through nested folders and directories
-- **🔧 Multiple Processing Modes**: 
+- **🔧 Multiple Processing Modes**:
   - Mode 1: Dynamic cookies (real-time scraping)
   - Mode 2: Static cookies (admin session)
   - Mode 3: External service integration (recommended)
@@ -28,6 +28,7 @@ A modern Streamlit web application for downloading and streaming files from Tera
 ### Installation
 
 1. **Clone or download the project files:**
+
    ```bash
    # If you have git
    git clone <repository-url>
@@ -37,11 +38,13 @@ A modern Streamlit web application for downloading and streaming files from Tera
    ```
 
 2. **Install dependencies:**
+
    ```bash
    pip install -r requirements.txt
    ```
 
 3. **Run the application:**
+
    ```bash
    streamlit run app.py
    ```
@@ -53,6 +56,7 @@ A modern Streamlit web application for downloading and streaming files from Tera
 ## 📖 How to Use
 
 ### Step 1: Enter TeraBox URL
+
 1. Open the application in your browser
 2. In the sidebar, paste your TeraBox share link
 3. Supported domains:
@@ -63,15 +67,19 @@ A modern Streamlit web application for downloading and streaming files from Tera
    - terasharelink.com
 
 ### Step 2: Select Processing Mode
+
 Choose from three processing modes:
+
 - **Mode 1**: Dynamic cookies with real-time scraping
 - **Mode 2**: Static cookies from admin session  
 - **Mode 3**: External service integration (recommended)
 
 ### Step 3: Extract Files
+
 Click the "🔍 Extract Files" button to analyze the TeraBox link and retrieve the file list.
 
 ### Step 4: Download or Stream
+
 - **Download**: Click the "📥 Download" button next to any file
 - **Stream Videos**: Click the "▶️ Stream" button for video files
 - **Filter**: Use the filter options to find specific file types
@@ -80,6 +88,7 @@ Click the "🔍 Extract Files" button to analyze the TeraBox link and retrieve t
 ## 🛠️ Technical Details
 
 ### File Structure
+
 ```
 teradl-streamlit/
 ├── app.py              # Main Streamlit application
@@ -93,21 +102,25 @@ teradl-streamlit/
 ### Processing Modes Explained
 
 **Mode 1: Dynamic Cookies**
+
 - Uses real-time web scraping to obtain authentication cookies
 - Most reliable but slower
 - Good for testing and development
 
 **Mode 2: Static Cookies**
+
 - Uses pre-configured admin session cookies
 - Faster but requires valid session cookies
 - Best for production with maintained sessions
 
 **Mode 3: External Service (Recommended)**
+
 - Uses external service (terabox.hnn.workers.dev) for processing
 - Most stable and feature-complete
 - Includes multiple download URL options
 
 ### Supported File Types
+
 - **Videos**: .mp4, .mov, .m4v, .mkv, .asf, .avi, .wmv, .m2ts, .3g2
 - **Images**: .jpg, .jpeg, .png, .gif, .webp, .svg
 - **Documents**: .pdf, .docx, .zip, .rar, .7z
@@ -116,6 +129,7 @@ teradl-streamlit/
 ## 🔧 Configuration
 
 ### Environment Variables
+
 You can customize the application by setting these environment variables:
 
 ```bash
@@ -130,6 +144,7 @@ export TERADL_MAX_RETRIES=3
 ```
 
 ### Logging
+
 The application creates a `teradl.log` file for debugging and monitoring. Log levels can be adjusted in `config.py`.
 
 ## 🐛 Troubleshooting
@@ -137,21 +152,25 @@ The application creates a `teradl.log` file for debugging and monitoring. Log le
 ### Common Issues
 
 **1. "Invalid TeraBox URL" Error**
+
 - Ensure the URL is from a supported TeraBox domain
 - Check that the URL is complete and properly formatted
 - Try copying the URL again from the source
 
 **2. "Failed to extract files" Error**
+
 - The TeraBox link might be expired or invalid
 - Try switching to a different processing mode
 - Check your internet connection
 
 **3. "Download failed" Error**
+
 - Try using a different download URL option
 - Check if the file size exceeds limits
 - Verify your internet connection stability
 
 **4. Video streaming not working**
+
 - Some video formats may not be supported by the browser
 - Try downloading the video file instead
 - Check if the video URL is accessible
@@ -166,6 +185,7 @@ The application creates a `teradl.log` file for debugging and monitoring. Log le
 ## 📝 Development
 
 ### Adding New Features
+
 1. Fork the project
 2. Create a feature branch
 3. Make your changes
@@ -173,6 +193,7 @@ The application creates a `teradl.log` file for debugging and monitoring. Log le
 5. Submit a pull request
 
 ### Code Structure
+
 - `app.py`: Main Streamlit UI and user interactions
 - `terabox_core.py`: Core TeraBox API integration
 - `config.py`: Configuration, error handling, and utilities
@@ -187,6 +208,7 @@ The application creates a `teradl.log` file for debugging and monitoring. Log le
 ## 🔄 Updates and Maintenance
 
 This Streamlit version is based on the original TeraDL project and includes:
+
 - Enhanced error handling and logging
 - Modern, responsive UI
 - Better file management

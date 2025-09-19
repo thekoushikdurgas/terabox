@@ -20,7 +20,7 @@ from urllib.parse import urlencode, quote
 import secrets
 import qrcode
 from io import BytesIO
-from config import log_error, log_info
+from utils.config import log_error, log_info
 
 class TeraBoxOfficialAPI:
     """Official TeraBox API client implementing the complete Open Platform API"""

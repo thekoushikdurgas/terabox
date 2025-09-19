@@ -1,0 +1,279 @@
+2025-09-19 09:47:03,476 - config - INFO - Opened URL in default browser: https://www.example.com...
+2025-09-19 09:47:03,490 - config - INFO - Opened URL in Google Chrome: https://www.example.com...
+2025-09-19 09:47:03,541 - config - INFO - Opened URL in Microsoft Edge: https://www.example.com...
+2025-09-19 09:47:03,726 - config - INFO - Opened URL in default browser: https://example.com/rapidapi_file.mp4...
+2025-09-19 09:47:04,329 - config - INFO - Opened URL in default browser: https://example.com/cookie_file.pdf...
+2025-09-19 09:47:04,918 - config - INFO - Opened URL in default browser: https://example.com/official_file.jpg...
+2025-09-19 09:47:06,898 - config - INFO - Opened URL in default browser: https://example.com/main_file.zip...
+2025-09-19 09:47:32,267 - config - INFO - Opened URL in default browser: https://www.example.com...
+2025-09-19 09:47:32,272 - config - INFO - Opened URL in Google Chrome: https://www.example.com...
+2025-09-19 09:47:32,278 - config - INFO - Opened URL in Microsoft Edge: https://www.example.com...
+2025-09-19 09:47:32,337 - config - INFO - Opened URL in default browser: https://example.com/rapidapi_file.mp4...
+2025-09-19 09:47:32,470 - config - INFO - Opened URL in default browser: https://example.com/cookie_file.pdf...
+2025-09-19 09:47:32,597 - config - INFO - Opened URL in default browser: https://example.com/official_file.jpg...
+2025-09-19 09:47:33,152 - config - INFO - Opened URL in default browser: https://example.com/main_file.zip...
+2025-09-19 09:53:13,164 - config - INFO - TeraBox Cache Manager initialized - Directory: output\sessions, TTL: 24h
+2025-09-19 09:53:13,165 - config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 09:53:23,837 - config - ERROR - Error in validate_api_key: ReadTimeout: HTTPSConnectionPool(host='terabox-downloader-direct-download-link-generator2.p.rapidapi.com', port=443): Read timed out. (read timeout=10)
+2025-09-19 09:53:35,559 - config - INFO - TeraBox Cache Manager initialized - Directory: output\sessions, TTL: 24h
+2025-09-19 09:53:35,559 - config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 09:54:20,887 - config - INFO - Getting file info via RapidAPI for: https://terasharelink.com/s/1ldOKUkYhJdv_DdLA4H6bfA
+2025-09-19 09:54:20,888 - config - INFO - Extracted surl: 1ldOKUkYhJdv_DdLA4H6bfA from URL: https://terasharelink.com/s/1ldOKUkYhJdv_DdLA4H6bfA
+2025-09-19 09:54:20,974 - config - INFO - Cache is valid - Age: 0.9h, Remaining: 23.1h
+2025-09-19 09:54:20,974 - config - INFO - Cache hit for surl: 1ldOKUkYhJdv_DdLA4H6bfA - File: teraboxlink_1ldOKUkYhJdv_DdLA4H6bfA.json
+2025-09-19 09:54:20,974 - config - INFO - Returning cached response for URL: https://terasharelink.com/s/1ldOKUkYhJdv_DdLA4H6bfA
+2025-09-19 09:55:24,990 - config - INFO - Opened URL in default browser: https://data.1024tera.com/file/3d4f2086f2df1589df4...
+2025-09-19 10:15:46,375 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:15:46,377 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:16:23,284 - utils.config - INFO - Cache is valid - Age: 1.5h, Remaining: 22.5h
+2025-09-19 10:16:23,286 - utils.config - INFO - Cache is valid - Age: 1.4h, Remaining: 22.6h
+2025-09-19 10:16:23,287 - utils.config - INFO - Cache is valid - Age: 1.3h, Remaining: 22.7h
+2025-09-19 10:16:23,287 - utils.config - INFO - Cache is valid - Age: 1.3h, Remaining: 22.7h
+2025-09-19 10:16:54,976 - utils.config - INFO - Cache is valid - Age: 1.5h, Remaining: 22.5h
+2025-09-19 10:16:55,004 - utils.config - INFO - Cache is valid - Age: 1.4h, Remaining: 22.6h
+2025-09-19 10:16:55,006 - utils.config - INFO - Cache is valid - Age: 1.3h, Remaining: 22.7h
+2025-09-19 10:16:55,008 - utils.config - INFO - Cache is valid - Age: 1.3h, Remaining: 22.7h
+2025-09-19 10:17:03,406 - utils.config - INFO - Cache is valid - Age: 1.5h, Remaining: 22.5h
+2025-09-19 10:17:03,407 - utils.config - INFO - Cache is valid - Age: 1.4h, Remaining: 22.6h
+2025-09-19 10:17:03,411 - utils.config - INFO - Cache is valid - Age: 1.3h, Remaining: 22.7h
+2025-09-19 10:17:03,502 - utils.config - INFO - Cache is valid - Age: 1.3h, Remaining: 22.7h
+2025-09-19 10:17:03,510 - utils.config - INFO - Cache is valid - Age: 1.5h, Remaining: 22.5h
+2025-09-19 10:17:03,512 - utils.config - INFO - Cache is valid - Age: 1.4h, Remaining: 22.6h
+2025-09-19 10:17:03,513 - utils.config - INFO - Cache is valid - Age: 1.3h, Remaining: 22.7h
+2025-09-19 10:17:03,513 - utils.config - INFO - Cache is valid - Age: 1.3h, Remaining: 22.7h
+2025-09-19 10:20:39,558 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:20:39,558 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:21:56,356 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:21:56,357 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:22:02,318 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:22:02,318 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,839 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,840 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,842 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,842 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,842 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,842 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,847 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,847 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,847 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,848 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,848 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,849 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,849 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,849 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,850 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,850 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,850 - utils.config - INFO - API key format validation passed: API key format is valid
+2025-09-19 10:36:28,851 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,851 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,852 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,852 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,852 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,852 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,853 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,853 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,854 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,854 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,855 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,855 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,856 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,856 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,856 - utils.config - ERROR - Error in _test_api_key_live: Exception: Network error
+2025-09-19 10:36:28,857 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,857 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,858 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,858 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,859 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,859 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,860 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,860 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,861 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,861 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,862 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,862 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,862 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,863 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,863 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,863 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,864 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,864 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,865 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,866 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,867 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,867 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:36:28,875 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:36:28,875 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,052 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,053 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,053 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,053 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,056 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,056 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,057 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,057 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,058 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,059 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,060 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,060 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,061 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,061 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,062 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,063 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,063 - utils.config - INFO - API key format validation passed: API key format is valid
+2025-09-19 10:37:45,064 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,065 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,066 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,066 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,066 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,067 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,068 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,068 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,069 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,070 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,070 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,071 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,071 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,072 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,072 - utils.config - ERROR - Error in _test_api_key_live: Exception: Network error
+2025-09-19 10:37:45,073 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,073 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,074 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,074 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,075 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,076 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,076 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,077 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,077 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,078 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,079 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,079 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,080 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,080 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,081 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,081 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,083 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,083 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,085 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,086 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,087 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,087 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:45,090 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:45,090 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:37:59,446 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:37:59,446 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,639 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,639 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,640 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,640 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,642 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,642 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,643 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,643 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,643 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,644 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,645 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,645 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,646 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,646 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,647 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,648 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,648 - utils.config - INFO - API key format validation passed: API key format is valid
+2025-09-19 10:38:33,649 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,649 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,650 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,650 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,650 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,650 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,651 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,651 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,652 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,652 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,653 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,653 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,654 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,655 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,655 - utils.config - ERROR - Error in _test_api_key_live: Exception: Network error
+2025-09-19 10:38:33,656 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,656 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,657 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,658 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,658 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,658 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,659 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,659 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,660 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,660 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,661 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,661 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,662 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,662 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,663 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,663 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,665 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,666 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,667 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,668 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,668 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,669 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:33,672 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:33,672 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:38:46,336 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:38:46,336 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:14,121 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:14,121 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,051 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,060 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,061 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,078 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,082 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,083 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,086 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,092 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,100 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,101 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,103 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,104 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,105 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,107 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,110 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,110 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,110 - utils.config - INFO - API key format validation passed: API key format is valid
+2025-09-19 10:41:51,112 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,112 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,113 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,113 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,114 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,114 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,115 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,116 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,117 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,118 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,119 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,120 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,122 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,123 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,123 - utils.config - ERROR - Error in _test_api_key_live: Exception: Network error
+2025-09-19 10:41:51,124 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,124 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,127 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,127 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,128 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,128 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,130 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,130 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,131 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,131 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,132 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,132 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,133 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,133 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,135 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,136 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,137 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,138 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,139 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,140 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,141 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,141 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:41:51,144 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:41:51,145 - utils.config - INFO - RapidAPI client initialized with caching enabled

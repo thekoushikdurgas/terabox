@@ -250,7 +250,7 @@ file_info = api.get_file_info("https://terabox.com/s/your_link")
 def progress_callback(downloaded, total, percentage):
     print(f"Progress: {percentage:.1f}%")
 
-result = api.download(file_info, save_path="downloads/", callback=progress_callback)
+result = api.download(file_info, save_path="download/", callback=progress_callback)
 ```
 
 ### Example 3: Commercial Service (RapidAPI)
@@ -267,7 +267,7 @@ api = TeraBoxRapidAPI(api_key)
 file_info = api.get_file_info("https://terabox.com/s/your_link")
 
 # Download file
-result = api.download_file(file_info, save_path="downloads/")
+result = api.download_file(file_info, save_path="download/")
 ```
 
 ### Example 4: Enterprise Integration (Official API)

@@ -1,86 +1,23 @@
-from urllib.parse import urlparse, parse_qs
-import requests
-import re
+import webbrowser
 
+url = "https://d.1024tera.com/file/3d4f2086f2df1589df4019af69cc7cf8?fid=4398293442739-250528-894344255561041&dstime=1758252676&rt=sh&sign=FDtAER-DCb740ccc5511e5e8fedcff06b081203-L0%2B%2FI31vQ7F6o8d%2F5%2FiJBHv1TPc%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=299853021490518886&dp-callid=0&r=261785170&sh=1&region=jp"
 
-def extract_domain_and_surl(url):
-    """
-    Extracts the domain name and 'surl' value from a given URL.
+# For Chrome (need to register first)
+chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
+webbrowser.register('chrome', None, webbrowser.BackgroundBrowser(chrome_path))
+# webbrowser.get('chrome').open(url)
 
-    Args:
-        url (str): The URL to extract domain name and 'surl' value from.
+# # For Firefox (built-in support)
+# webbrowser.get('firefox').open(url)
+# import webbrowser
 
-    Returns:
-        tuple: A tuple containing the domain name and 'surl' value as (domain_name, surl_value).
-    """
+# url = "https://www.example.com"
 
-    return urlparse(url).netloc, parse_qs(urlparse(url).query).get('surl', [''])[0]
+# Open in default browser (same as above)
+# webbrowser.open(url)
 
+# Open in new browser window
+# webbrowser.open_new(url)
 
-def parseCookieFile(cookiefile):
-    """
-    Parse cookies from a file in Netscape format.
-
-    Args:
-        cookiefile (str): Path to the cookies file.
-
-    Returns:
-        dict: A dictionary containing cookies as key-value pairs.
-    """
-
-    cookies = {}
-    with open(cookiefile, 'r') as fp:
-        for line in fp:
-            if not line.startswith('#'):
-                line_fields = line.strip().split('\t')
-                # Make sure the line has at least 7 fields, as per Netscape format
-                if len(line_fields) >= 7:
-                    # Extract the cookie name and value
-                    cookie_name = line_fields[5]
-                    cookie_value = line_fields[6]
-                    cookies[cookie_name] = cookie_value
-    return cookies
-
-
-def download(url: str) -> str:
-    """
-    Downloads data from a given URL and returns the result.
-
-    Args:
-        url (str): The URL to download data from.
-
-    Returns:
-        str: The downloaded data.
-    """
-
-    axios = requests.Session()
-
-    # Load cookies from 'cookies.txt'
-    cookies = parseCookieFile('cookies.txt')
-    axios.cookies.update(cookies)
-
-    response = axios.get(url)
-    domain, key = extract_domain_and_surl(response.url)
-
-    headers = {
-        'Accept': 'application/json, text/plain, */*',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Referer': f'https://{domain}/sharing/link?surl={key}',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36'
-    }
-
-    response = axios.get(
-        f'https://www.terabox.com/share/list?app_id=250528&shorturl={key}&root=1', headers=headers)
-
-    try:
-        result = response.json()['list'][0]['dlink']
-    except KeyError:
-        print("Failed to get download link")
-    else:
-        return result
-
-
-# Example usage
-dlink = download('https://www.terabox.app/sharing/link?surl=ZqumlUbwrc32c40geaQsVg')
-print(dlink)
+# Open in new browser tab
+webbrowser.open_new_tab(url)

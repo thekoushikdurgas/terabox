@@ -1,0 +1,90 @@
+{
+  "app": {
+    "api_mode": "unofficial",
+    "theme": "light",
+    "language": "en",
+    "max_file_size_mb": 1000,
+    "enable_streaming": true,
+    "enable_debug": false,
+    "cache_duration_minutes": 30,
+    "default_download_dir": "output/download"
+  },
+  "rapidapi": {
+    "api_key": "bfa3badc00msh85dd262668d4e7fp146cebjsnc55b1d0c2132",
+    "base_url": "https://terabox-downloader-direct-download-link-generator2.p.rapidapi.com",
+    "host": "terabox-downloader-direct-download-link-generator2.p.rapidapi.com",
+    "timeout": 30,
+    "max_retries": 3,
+    "retry_delay": 2.0,
+    "enable_cache": true,
+    "cache_ttl_hours": 24
+  },
+  "unofficial": {
+    "default_mode": 3,
+    "max_retries": 3,
+    "retry_delay": 1.0,
+    "timeout_seconds": 30,
+    "user_agents_rotation": true,
+    "enable_logging": true,
+    "external_service_url": "https://terabox.hnn.workers.dev"
+  },
+  "official": {
+    "client_id": null,
+    "client_secret": null,
+    "private_secret": null,
+    "api_domain": "www.terabox.com",
+    "upload_domain": null,
+    "default_stream_quality": "M3U8_AUTO_720",
+    "enable_token_refresh": true,
+    "token_refresh_threshold": 3600,
+    "timeout": 30,
+    "max_retries": 3
+  },
+  "cookie": {
+    "validate_on_startup": true,
+    "auto_retry": true,
+    "timeout": 30,
+    "max_retries": 3,
+    "retry_delay": 1.5
+  },
+  "browser": {
+    "default_browser": "chrome",
+    "supported_browsers": [
+      "chrome",
+      "firefox",
+      "edge",
+      "safari",
+      "opera"
+    ],
+    "open_in_new_tab": true,
+    "enable_browser_selection": true
+  },
+  "cache": {
+    "enable_global_cache": true,
+    "cache_directory": "output/sessions",
+    "default_ttl_hours": 24,
+    "max_cache_size_mb": 100,
+    "auto_cleanup": true,
+    "cleanup_interval_hours": 6
+  },
+  "network": {
+    "default_timeout": 30,
+    "max_retries": 3,
+    "retry_delay": 1.0,
+    "connection_pool_size": 10,
+    "enable_ssl_verify": true,
+    "user_agent": "TeraDL-Client/1.0"
+  },
+  "logging": {
+    "level": "INFO",
+    "file": "output/logs/teradl.log",
+    "max_file_size_mb": 10,
+    "backup_count": 5,
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  },
+  "security": {
+    "enable_encryption": true,
+    "keyring_service": "TeraDL",
+    "session_timeout_minutes": 60
+  }
+}

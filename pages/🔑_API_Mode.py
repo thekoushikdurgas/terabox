@@ -3,9 +3,11 @@ import qrcode
 from io import BytesIO
 import base64
 import time
-from terabox_official_api import TeraBoxOfficialAPI
-from terabox_core import TeraboxCore
+from utils.terabox_official_api import TeraBoxOfficialAPI
+from utils.terabox_core import TeraboxCore
+# from terabox_core import TeraboxCore
 import json
+from utils.browser_utils import open_direct_file_link, display_browser_open_result, create_browser_selection_ui
 
 st.set_page_config(
     page_title="API Mode Selection",

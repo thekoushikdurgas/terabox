@@ -5,6 +5,7 @@
 TeraDL now implements **four complete methods** for accessing TeraBox content, making it the most comprehensive TeraBox integration available.
 
 ### 🎯 Mode 1: Unofficial Scraping
+
 ```
 terabox_core.py
 ├── TeraboxCore class
@@ -16,6 +17,7 @@ terabox_core.py
 ```
 
 ### 🍪 Mode 2: Cookie Authentication  
+
 ```
 terabox_cookie_api.py
 ├── TeraBoxCookieAPI class
@@ -27,6 +29,7 @@ terabox_cookie_api.py
 ```
 
 ### 🏢 Mode 3: Official API
+
 ```
 terabox_official_api.py
 ├── TeraBoxOfficialAPI class
@@ -38,6 +41,7 @@ terabox_official_api.py
 ```
 
 ### 💳 Mode 4: RapidAPI Service
+
 ```
 terabox_rapidapi.py
 ├── TeraBoxRapidAPI class
@@ -51,6 +55,7 @@ terabox_rapidapi.py
 ## 📱 User Interface Architecture
 
 ### Main Application (app.py)
+
 ```
 Streamlit Multi-Page App
 ├── Header with mode indicator
@@ -62,6 +67,7 @@ Streamlit Multi-Page App
 ```
 
 ### Page Structure
+
 ```
 pages/
 ├── 🔑_API_Mode.py          # Official API configuration
@@ -78,6 +84,7 @@ pages/
 ## 🔄 Data Flow Architecture
 
 ### Unofficial Mode Flow
+
 ```
 User Input (TeraBox URL)
     ↓
@@ -97,6 +104,7 @@ User Interface Display
 ```
 
 ### Cookie Mode Flow
+
 ```
 User Input (TeraBox URL + Cookie)
     ↓
@@ -114,6 +122,7 @@ Progress-Tracked Download
 ```
 
 ### Official API Flow
+
 ```
 User Credentials (Client ID/Secret)
     ↓
@@ -131,6 +140,7 @@ Enterprise-Grade Results
 ```
 
 ### RapidAPI Flow
+
 ```
 User Input (TeraBox URL + API Key)
     ↓
@@ -148,6 +158,7 @@ Professional Results
 ## 🧩 Component Integration
 
 ### Core Components
+
 ```python
 # Base configuration
 config.py
@@ -165,6 +176,7 @@ terabox_config.py
 ```
 
 ### API Clients
+
 ```python
 # Unofficial scraping
 TeraboxCore(mode=3)
@@ -196,6 +208,7 @@ TeraBoxRapidAPI(api_key)
 ```
 
 ### Session State Management
+
 ```python
 st.session_state = {
     'api_mode': 'unofficial|cookie|official|rapidapi',
@@ -211,6 +224,7 @@ st.session_state = {
 ## 🔧 Technical Specifications
 
 ### Supported URL Formats
+
 ```
 All Modes Support:
 - https://www.terabox.com/s/...
@@ -224,6 +238,7 @@ RapidAPI Also Supports:
 ```
 
 ### File Type Support
+
 ```
 Video: .mp4, .avi, .mkv, .mov, .wmv, .flv, .m4v
 Image: .jpg, .jpeg, .png, .gif, .bmp, .webp
@@ -234,6 +249,7 @@ Other: All other file types
 ```
 
 ### Network Configuration
+
 ```python
 # Connection settings
 timeout = (10, 30)  # connect, read
@@ -254,6 +270,7 @@ user_agents = [
 ## 📊 Performance Metrics
 
 ### Success Rates (Estimated)
+
 ```
 🎯 Unofficial Mode: 70-85% (depends on anti-bot measures)
 🍪 Cookie Mode: 90-95% (depends on cookie validity)
@@ -262,6 +279,7 @@ user_agents = [
 ```
 
 ### Speed Comparison
+
 ```
 Setup Time:
 🎯 Unofficial: 0 seconds
@@ -279,6 +297,7 @@ Download Speed:
 ## 🔮 Future Enhancements
 
 ### Planned Features
+
 - **Multi-mode fallback** - Automatically try different modes
 - **Performance analytics** - Track success rates per mode
 - **Bulk processing** - Enhanced multi-file operations
@@ -287,6 +306,7 @@ Download Speed:
 - **Caching system** - Reduce API calls
 
 ### Extensibility
+
 ```python
 # Easy to add new modes
 class NewTeraBoxAPI:
@@ -302,12 +322,14 @@ class NewTeraBoxAPI:
 ## 📈 Deployment Options
 
 ### Local Development
+
 ```bash
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
 ### Production Deployment
+
 ```bash
 # Docker deployment
 FROM python:3.9
@@ -322,6 +344,7 @@ CMD ["streamlit", "run", "app.py", "--server.address", "0.0.0.0"]
 ```
 
 ### Enterprise Deployment
+
 ```bash
 # Kubernetes deployment
 # Load balancing

@@ -10,7 +10,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('teradl.log'),
+        logging.FileHandler('output/logs/teradl.log'),
         logging.StreamHandler()
     ]
 )
@@ -25,6 +25,7 @@ class AppConfig:
     MAX_FILE_SIZE_MB: int = 500
     TIMEOUT_SECONDS: int = 30
     MAX_RETRIES: int = 3
+    DEFAULT_DOWNLOAD_DIR: str = "output/download"
     
     def __post_init__(self):
         if self.SUPPORTED_DOMAINS is None:
@@ -135,6 +136,13 @@ def get_file_type_info(file_type: str) -> Dict[str, str]:
     }
     
     return type_info.get(file_type, type_info['other'])
+
+def get_default_download_path() -> str:
+    """Get the default download directory path"""
+    download_dir = config.DEFAULT_DOWNLOAD_DIR
+    # Ensure the directory exists
+    os.makedirs(download_dir, exist_ok=True)
+    return download_dir
 
 def create_error_message(error: Exception, user_friendly: bool = True) -> str:
     """Create user-friendly error messages"""

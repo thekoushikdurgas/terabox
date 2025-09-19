@@ -1,8 +1,10 @@
 import streamlit as st
 import json
-from terabox_official_api import TeraBoxOfficialAPI
+import requests
+from utils.terabox_official_api import TeraBoxOfficialAPI
 from typing import Dict, List, Any
 import time
+from utils.browser_utils import open_direct_file_link, display_browser_open_result, create_browser_selection_ui
 
 st.set_page_config(
     page_title="File Manager",
@@ -38,6 +40,23 @@ if 'file_list' not in st.session_state:
     st.session_state.file_list = []
 if 'selected_files' not in st.session_state:
     st.session_state.selected_files = []
+
+# Browser Selection Section
+with st.expander("🌐 Browser Settings", expanded=False):
+    col_browser, col_info = st.columns([2, 1])
+    
+    with col_browser:
+        selected_browser = create_browser_selection_ui()
+        if selected_browser:
+            st.success(f"✅ Browser configured")
+    
+    with col_info:
+        st.info("""
+        **Browser Selection:**
+        Choose which browser to use when opening direct file links.
+        """)
+
+st.markdown("---")
 
 # Header with user info and quota
 col1, col2, col3 = st.columns([2, 1, 1])
@@ -285,19 +304,42 @@ def download_single_file(file_info: Dict[str, Any]):
             st.success("✅ Download link generated!")
             st.text_input("Download URL:", value=download_url, key=f"single_dl_{file_id}")
             
-            # Try to create a direct download button
-            try:
-                response = requests.get(download_url, stream=True)
-                if response.status_code == 200:
-                    st.download_button(
-                        label=f"💾 Download {file_info['server_filename']}",
-                        data=response.content,
-                        file_name=file_info['server_filename'],
-                        mime="application/octet-stream"
-                    )
-            except Exception as e:
-                st.warning(f"Direct download failed: {e}")
-                st.info("Please use the download URL above")
+            # Download and Open Link buttons
+            col_dl, col_open = st.columns(2)
+            
+            with col_dl:
+                # Try to create a direct download button
+                try:
+                    response = requests.get(download_url, stream=True)
+                    if response.status_code == 200:
+                        st.download_button(
+                            label=f"💾 Download {file_info['server_filename']}",
+                            data=response.content,
+                            file_name=file_info['server_filename'],
+                            mime="application/octet-stream"
+                        )
+                except Exception as e:
+                    st.warning(f"Direct download failed: {e}")
+                    st.info("Please use the download URL above")
+            
+            with col_open:
+                # Open Direct File Link button
+                if st.button(f"🌐 Open Link", key=f"open_single_{file_info['fs_id']}"):
+                    preferred_browser = st.session_state.get('preferred_browser', None)
+                    
+                    # Create file info structure for browser utility
+                    link_info = {
+                        'dlink': download_url,
+                        'file_name': file_info['server_filename'],
+                        'download_link': download_url
+                    }
+                    
+                    with st.spinner("🌐 Opening direct file link..."):
+                        result = open_direct_file_link(link_info, browser=preferred_browser)
+                    
+                    display_browser_open_result(result, show_details=True)
+                    if result['status'] == 'success':
+                        st.balloons()
         else:
             st.error("No download links available")
     else:

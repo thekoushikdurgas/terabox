@@ -151,7 +151,7 @@ file_info = api.get_file_info("https://terabox.com/s/your_link")
 def progress_callback(downloaded, total, percentage):
     print(f"Progress: {percentage:.1f}%")
 
-result = api.download(file_info, save_path="downloads/", callback=progress_callback)
+result = api.download(file_info, save_path="download/", callback=progress_callback)
 ```
 
 ### 🏢 Official API Mode

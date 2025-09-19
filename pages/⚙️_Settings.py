@@ -1,8 +1,11 @@
 import streamlit as st
 import json
-from terabox_config import get_config_manager, AppConfig, UnofficialConfig, OfficialAPIConfig
+from utils.terabox_config import get_config_manager, AppConfig, UnofficialConfig, OfficialAPIConfig
 from typing import Dict, Any
+from utils.browser_utils import get_browser_manager, create_browser_selection_ui
 
+# Import time for file modification display
+import time
 st.set_page_config(
     page_title="Settings",
     page_icon="⚙️",
@@ -16,7 +19,7 @@ st.markdown("Configure TeraDL application settings, API credentials, and prefere
 config_mgr = get_config_manager()
 
 # Tabs for different settings categories
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["🎯 General", "🎪 Unofficial Mode", "🏢 Official API", "🔧 Advanced", "📊 Status"])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs(["🎯 General", "🌐 Browser", "💳 RapidAPI", "🎪 Unofficial Mode", "🏢 Official API", "🔧 Advanced", "📊 Status", "💾 Cache"])
 
 # ============================================================================
 # General Settings Tab
@@ -67,6 +70,12 @@ with tab1:
             value=config_mgr.app_config.enable_debug,
             help="Show debug information and logs"
         )
+        
+        download_dir = st.text_input(
+            "Download Directory:",
+            value=config_mgr.app_config.default_download_dir,
+            help="Directory where downloaded files will be saved"
+        )
     
     if st.button("💾 Save General Settings", type="primary"):
         config_mgr.update_app_config(
@@ -74,15 +83,240 @@ with tab1:
             language=language,
             max_file_size_mb=max_file_size,
             enable_streaming=enable_streaming,
-            enable_debug=enable_debug
+            enable_debug=enable_debug,
+            default_download_dir=download_dir
         )
         st.success("✅ General settings saved!")
         st.rerun()
 
 # ============================================================================
-# Unofficial Mode Settings Tab
+# Browser Settings Tab
 # ============================================================================
 with tab2:
+    st.header("🌐 Browser Settings")
+    st.markdown("Configure browser preferences for opening direct file links.")
+    
+    # Get browser manager
+    browser_manager = get_browser_manager()
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("🔧 Browser Configuration")
+        
+        # Browser selection
+        selected_browser = create_browser_selection_ui()
+        
+        if selected_browser:
+            browser_info = browser_manager.supported_browsers.get(selected_browser)
+            if browser_info:
+                st.success(f"✅ **Selected:** {browser_info['icon']} {browser_info['name']}")
+                st.info(f"📝 **Description:** {browser_info['description']}")
+        
+        # Test browser functionality
+        st.subheader("🧪 Test Browser")
+        test_url = st.text_input(
+            "Test URL:",
+            value="https://www.google.com",
+            help="Enter a URL to test browser opening functionality"
+        )
+        
+        if st.button("🌐 Test Open Browser", type="secondary"):
+            if test_url:
+                with st.spinner("Opening test URL..."):
+                    result = browser_manager.open_url(test_url, selected_browser, new_tab=True)
+                
+                if result['status'] == 'success':
+                    st.success(f"✅ {result['message']}")
+                    st.balloons()
+                else:
+                    st.error(f"❌ {result['message']}")
+            else:
+                st.error("Please enter a test URL")
+    
+    with col2:
+        st.subheader("📋 Available Browsers")
+        
+        # Show available browsers
+        browsers = browser_manager.get_browser_list()
+        
+        for browser in browsers:
+            if browser['available']:
+                st.success(f"{browser['icon']} **{browser['name']}** - Available")
+                st.caption(browser['description'])
+            else:
+                st.warning(f"{browser['icon']} **{browser['name']}** - Not Found")
+                st.caption(browser['description'])
+        
+        st.markdown("---")
+        
+        st.subheader("💡 Browser Information")
+        st.info("""
+        **How Browser Selection Works:**
+        
+        • **Default Browser**: Uses your system's default browser
+        • **Specific Browsers**: Opens links in the selected browser
+        • **Fallback**: If selected browser fails, falls back to default
+        • **Cross-Platform**: Works on Windows, macOS, and Linux
+        
+        **When is this used?**
+        • "Open Direct File Link" buttons in all modes
+        • Direct access to TeraBox file URLs
+        • Quick preview without downloading
+        """)
+        
+        # Show current session browser preference
+        current_pref = st.session_state.get('preferred_browser', 'default')
+        if current_pref != 'default':
+            browser_info = browser_manager.supported_browsers.get(current_pref)
+            if browser_info:
+                st.success(f"🎯 **Current Session Preference:** {browser_info['icon']} {browser_info['name']}")
+        else:
+            st.info("🎯 **Current Session Preference:** System Default")
+
+# ============================================================================
+# RapidAPI Settings Tab  
+# ============================================================================
+with tab3:
+    st.header("💳 RapidAPI Configuration")
+    st.markdown("Configure RapidAPI settings for commercial TeraBox service access")
+    
+    # Get RapidAPI configuration
+    rapidapi_config = config_mgr.get_rapidapi_config()
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("🔑 API Settings")
+        
+        # API Key (encrypted in storage)
+        current_key_display = "••••••••••••••••" if rapidapi_config.api_key else ""
+        api_key = st.text_input(
+            "RapidAPI Key:",
+            value=current_key_display,
+            type="password",
+            help="Your RapidAPI key for TeraBox service access"
+        )
+        
+        base_url = st.text_input(
+            "Base URL:",
+            value=rapidapi_config.base_url,
+            help="RapidAPI service base URL"
+        )
+        
+        host = st.text_input(
+            "API Host:",
+            value=rapidapi_config.host,
+            help="RapidAPI host header value"
+        )
+    
+    with col2:
+        st.subheader("⚙️ Request Settings")
+        
+        timeout = st.number_input(
+            "Request Timeout (seconds):",
+            min_value=5,
+            max_value=120,
+            value=rapidapi_config.timeout,
+            help="Timeout for API requests"
+        )
+        
+        max_retries = st.number_input(
+            "Max Retries:",
+            min_value=1,
+            max_value=10,
+            value=rapidapi_config.max_retries,
+            help="Maximum retry attempts for failed requests"
+        )
+        
+        retry_delay = st.number_input(
+            "Retry Delay (seconds):",
+            min_value=0.5,
+            max_value=10.0,
+            value=rapidapi_config.retry_delay,
+            step=0.5,
+            help="Delay between retry attempts"
+        )
+    
+    st.subheader("💾 Cache Settings")
+    col3, col4 = st.columns(2)
+    
+    with col3:
+        enable_cache = st.checkbox(
+            "Enable RapidAPI Caching",
+            value=rapidapi_config.enable_cache,
+            help="Cache API responses to reduce API calls"
+        )
+    
+    with col4:
+        cache_ttl_hours = st.number_input(
+            "Cache TTL (hours):",
+            min_value=1,
+            max_value=168,  # 1 week
+            value=rapidapi_config.cache_ttl_hours,
+            help="How long to cache API responses"
+        )
+    
+    if st.button("💾 Save RapidAPI Settings", type="primary"):
+        # Only update API key if it's not the masked display value
+        update_kwargs = {
+            'base_url': base_url,
+            'host': host,
+            'timeout': timeout,
+            'max_retries': max_retries,
+            'retry_delay': retry_delay,
+            'enable_cache': enable_cache,
+            'cache_ttl_hours': cache_ttl_hours
+        }
+        
+        if api_key and api_key != current_key_display:
+            update_kwargs['api_key'] = api_key
+        
+        config_mgr.update_rapidapi_config(**update_kwargs)
+        st.success("✅ RapidAPI settings saved!")
+        st.rerun()
+    
+    # API Key Management
+    st.subheader("🔐 API Key Management")
+    col5, col6 = st.columns(2)
+    
+    with col5:
+        if st.button("🔍 Test API Key"):
+            if config_mgr.has_rapidapi_key():
+                with st.spinner("Testing API key..."):
+                    from utils.terabox_rapidapi import TeraBoxRapidAPI
+                    client = TeraBoxRapidAPI()
+                    result = client.validate_api_key()
+                    
+                    if result['status'] == 'success':
+                        st.success(f"✅ {result['message']}")
+                    else:
+                        st.error(f"❌ {result['message']}")
+            else:
+                st.warning("⚠️ No API key configured")
+    
+    with col6:
+        if st.button("🗑️ Clear API Key"):
+            config_mgr.clear_rapidapi_key()
+            st.success("🗑️ API key cleared!")
+            st.rerun()
+    
+    # Configuration Status
+    st.subheader("📊 Configuration Status")
+    status_col1, status_col2 = st.columns(2)
+    
+    with status_col1:
+        st.metric("API Key Status", "Configured" if config_mgr.has_rapidapi_key() else "Not Set")
+        st.metric("Cache Status", "Enabled" if rapidapi_config.enable_cache else "Disabled")
+    
+    with status_col2:
+        st.metric("Base URL", "✅ Set" if rapidapi_config.base_url else "❌ Missing")
+        st.metric("Timeout", f"{rapidapi_config.timeout}s")
+
+# ============================================================================
+# Unofficial Mode Settings Tab
+# ============================================================================
+with tab4:
     st.header("🎪 Unofficial Mode Settings")
     st.info("Configure settings for the unofficial scraping mode")
     
@@ -172,7 +406,7 @@ with tab2:
 # ============================================================================
 # Official API Settings Tab
 # ============================================================================
-with tab3:
+with tab5:
     st.header("🏢 Official API Settings")
     st.info("Configure TeraBox Official API credentials and settings")
     
@@ -287,7 +521,7 @@ with tab3:
 # ============================================================================
 # Advanced Settings Tab
 # ============================================================================
-with tab4:
+with tab6:
     st.header("🔧 Advanced Settings")
     st.warning("⚠️ Advanced settings for experienced users only")
     
@@ -352,6 +586,7 @@ with tab4:
         - `TERADL_MAX_FILE_SIZE`: Max file size in MB
         - `TERADL_ENABLE_STREAMING`: Enable streaming (true/false)
         - `TERADL_ENABLE_DEBUG`: Enable debug mode (true/false)
+        - `TERADL_DOWNLOAD_DIR`: Default download directory
         
         **Unofficial Mode:**
         - `TERADL_DEFAULT_MODE`: Default processing mode (1/2/3)
@@ -370,7 +605,7 @@ with tab4:
 # ============================================================================
 # Status Tab
 # ============================================================================
-with tab5:
+with tab7:
     st.header("📊 Configuration Status")
     st.markdown("Current configuration overview and system status")
     
@@ -455,9 +690,212 @@ with tab5:
             st.cache_data.clear()
             st.success("✅ Cache cleared!")
 
+# ============================================================================
+# Cache Management Tab
+# ============================================================================
+with tab8:
+    st.header("💾 Cache Management")
+    st.markdown("Manage RapidAPI response caching and performance optimization.")
+    
+    # Check if RapidAPI client is available in session state
+    if 'rapidapi_client' in st.session_state and st.session_state.rapidapi_client:
+        rapidapi_client = st.session_state.rapidapi_client
+        
+        # Cache Status Overview
+        st.subheader("📊 Cache Status Overview")
+        
+        cache_info = rapidapi_client.get_cache_info()
+        
+        if cache_info.get('enabled'):
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                st.success("✅ **Cache Enabled**")
+                st.info(f"📁 Directory: `{cache_info.get('cache_directory', 'Unknown')}`")
+            
+            with col2:
+                st.info(f"⏰ TTL: {cache_info.get('ttl_hours', 24)} hours")
+                st.info(f"🔧 Version: {cache_info.get('cache_version', '1.0')}")
+            
+            with col3:
+                # Get quick stats
+                cache_stats = rapidapi_client.get_cache_stats()
+                if 'error' not in cache_stats:
+                    st.metric("📄 Total Files", cache_stats.get('total_files', 0))
+                    st.metric("💾 Size", f"{cache_stats.get('total_size_mb', 0):.2f} MB")
+            
+            # Detailed Cache Statistics
+            st.markdown("---")
+            st.subheader("📈 Detailed Statistics")
+            
+            if st.button("🔄 Refresh Cache Stats"):
+                with st.spinner("Loading cache statistics..."):
+                    cache_stats = rapidapi_client.get_cache_stats()
+                
+                if 'error' not in cache_stats:
+                    col_stat1, col_stat2, col_stat3, col_stat4 = st.columns(4)
+                    
+                    with col_stat1:
+                        st.metric("📄 Total Files", cache_stats.get('total_files', 0))
+                    
+                    with col_stat2:
+                        st.metric("✅ Valid Files", cache_stats.get('valid_files', 0))
+                    
+                    with col_stat3:
+                        st.metric("⚠️ Expired Files", cache_stats.get('expired_files', 0))
+                    
+                    with col_stat4:
+                        total_files = cache_stats.get('total_files', 0)
+                        valid_files = cache_stats.get('valid_files', 0)
+                        efficiency = (valid_files / total_files * 100) if total_files > 0 else 0
+                        st.metric("🎯 Efficiency", f"{efficiency:.1f}%")
+                    
+                    # Show file list if available
+                    if cache_stats.get('files'):
+                        st.markdown("### 📋 Cache Files")
+                        
+                        # Create a more detailed table
+                        import pandas as pd
+                        
+                        files_data = []
+                        for file_info in cache_stats['files']:
+                            files_data.append({
+                                'SURL': file_info.get('surl', 'Unknown'),
+                                'Age (hours)': f"{file_info.get('age_hours', 0):.1f}",
+                                'Size (KB)': f"{file_info.get('size_kb', 0):.1f}",
+                                'Status': '✅ Valid' if file_info.get('is_valid', False) else '⚠️ Expired',
+                                'Created': file_info.get('created_at', 'Unknown')[:16] if file_info.get('created_at') else 'Unknown',
+                                'TeraBox URL': file_info.get('terabox_url', 'Unknown')[:50] + '...' if len(file_info.get('terabox_url', '')) > 50 else file_info.get('terabox_url', 'Unknown')
+                            })
+                        
+                        if files_data:
+                            df = pd.DataFrame(files_data)
+                            st.dataframe(df, use_container_width=True, hide_index=True)
+                else:
+                    st.error(f"❌ Error getting cache stats: {cache_stats.get('error', 'Unknown error')}")
+            
+            # Cache Management Actions
+            st.markdown("---")
+            st.subheader("🛠️ Cache Management Actions")
+            
+            col_action1, col_action2, col_action3 = st.columns(3)
+            
+            with col_action1:
+                st.markdown("**🧹 Cleanup Operations**")
+                
+                if st.button("Clean Expired Cache", type="secondary", key="settings_clean_expired"):
+                    with st.spinner("Cleaning expired cache files..."):
+                        cleanup_result = rapidapi_client.cleanup_expired_cache()
+                    
+                    if cleanup_result.get('status') == 'success':
+                        cleaned_files = cleanup_result.get('cleaned_files', 0)
+                        if cleaned_files > 0:
+                            st.success(f"✅ Cleaned {cleaned_files} expired files")
+                        else:
+                            st.info("ℹ️ No expired files found")
+                    else:
+                        st.error(f"❌ Cleanup failed: {cleanup_result.get('message', 'Unknown error')}")
+            
+            with col_action2:
+                st.markdown("**🗑️ Clear Operations**")
+                
+                if st.button("Clear All Cache", type="secondary", key="settings_clear_all"):
+                    if st.session_state.get('settings_confirm_clear', False):
+                        with st.spinner("Clearing all cache files..."):
+                            clear_result = rapidapi_client.clear_cache()
+                        
+                        if clear_result.get('status') == 'success':
+                            cleared_files = clear_result.get('cleared', 0)
+                            st.success(f"✅ Cleared {cleared_files} files")
+                        else:
+                            st.error(f"❌ Clear failed: {clear_result.get('message', 'Unknown error')}")
+                        
+                        st.session_state.settings_confirm_clear = False
+                    else:
+                        st.session_state.settings_confirm_clear = True
+                        st.warning("⚠️ Click again to confirm")
+            
+            with col_action3:
+                st.markdown("**📊 Information**")
+                
+                if st.button("View Cache Directory", key="settings_view_dir"):
+                    import os
+                    cache_dir = cache_info.get('cache_directory', '')
+                    if os.path.exists(cache_dir):
+                        st.success(f"📁 Cache directory exists: `{cache_dir}`")
+                        
+                        # Show directory contents
+                        try:
+                            files = [f for f in os.listdir(cache_dir) if f.startswith('teraboxlink_') and f.endswith('.json')]
+                            st.info(f"Found {len(files)} cache files")
+                        except Exception as e:
+                            st.error(f"Error reading directory: {e}")
+                    else:
+                        st.warning("📁 Cache directory does not exist")
+            
+            # Cache Configuration
+            st.markdown("---")
+            st.subheader("⚙️ Cache Configuration")
+            
+            col_config1, col_config2 = st.columns(2)
+            
+            with col_config1:
+                st.markdown("**Current Settings:**")
+                st.info(f"Cache TTL: {cache_info.get('ttl_hours', 24)} hours")
+                st.info(f"Cache Directory: `{cache_info.get('cache_directory', 'Unknown')}`")
+                st.info(f"Cache Version: {cache_info.get('cache_version', '1.0')}")
+            
+            with col_config2:
+                st.markdown("**Cache Benefits:**")
+                st.success("⚡ Faster response times")
+                st.success("💰 Reduced API costs")
+                st.success("📊 Better user experience")
+                st.success("🔄 Automatic expiry management")
+        
+        else:
+            st.warning("⚠️ **Cache is Disabled**")
+            st.info("Caching is not enabled for the current RapidAPI client.")
+            
+            with st.expander("ℹ️ How to Enable Caching"):
+                st.markdown("""
+                To enable caching for RapidAPI responses:
+                
+                1. **Go to RapidAPI Mode** - Navigate to the 💳 RapidAPI Mode page
+                2. **Configure API Key** - Enter and validate your RapidAPI key
+                3. **Caching Auto-Enabled** - Caching is automatically enabled when you create a RapidAPI client
+                4. **Use Cache Manager** - Access cache controls in the Cache Manager tab
+                
+                **Cache Features:**
+                - Automatic response caching using TeraBox link identifiers (surl)
+                - Configurable TTL (Time To Live) - default 24 hours
+                - Automatic cleanup of expired entries
+                - Cache statistics and monitoring
+                - Manual cache management controls
+                """)
+    
+    else:
+        st.info("ℹ️ **RapidAPI Client Not Available**")
+        st.markdown("""
+        Cache management is available when you have an active RapidAPI client session.
+        
+        **To access cache management:**
+        1. Go to the 💳 RapidAPI Mode page
+        2. Configure and validate your RapidAPI key
+        3. Return to this settings page for cache management
+        
+        **What is Response Caching?**
+        
+        Response caching stores RapidAPI responses locally to:
+        - Provide instant access to previously fetched files
+        - Reduce API usage and associated costs
+        - Improve user experience with faster response times
+        - Enable offline access to cached data
+        """)
+        
+        if st.button("🚀 Go to RapidAPI Mode"):
+            st.switch_page("pages/💳_RapidAPI_Mode.py")
+
 # Footer
 st.markdown("---")
 st.info("💡 **Tip:** Changes are automatically saved when you click the save buttons. Some changes may require restarting the application to take effect.")
 
-# Import time for file modification display
-import time

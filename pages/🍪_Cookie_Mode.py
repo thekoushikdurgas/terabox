@@ -2,8 +2,9 @@ import streamlit as st
 import json
 import time
 import re
-from terabox_cookie_api import TeraBoxCookieAPI
+from utils.terabox_cookie_api import TeraBoxCookieAPI
 from typing import Dict, Any, List
+from utils.browser_utils import open_direct_file_link, display_browser_open_result, create_browser_selection_ui
 
 def parse_tabular_cookies(cookie_data: str) -> Dict[str, str]:
     """
@@ -629,6 +630,22 @@ with col2:
 if st.session_state.cookie_api and st.session_state.cookie_validated:
     st.header("📁 File Processing")
     
+    # Browser Selection Section
+    with st.expander("🌐 Browser Settings", expanded=False):
+        col_browser, col_info = st.columns([2, 1])
+        
+        with col_browser:
+            selected_browser = create_browser_selection_ui()
+            if selected_browser:
+                st.success(f"✅ Browser configured")
+        
+        with col_info:
+            st.info("""
+            **Browser Selection:**
+            Choose which browser to use when opening direct file links.
+            The selected browser will be used for all "Open Direct File Link" operations.
+            """)
+    
     tab1, tab2, tab3 = st.tabs(["🔗 Single File", "📋 Multiple Files", "🧪 Test & Debug"])
     
     with tab1:
@@ -685,7 +702,7 @@ if st.session_state.cookie_api and st.session_state.cookie_validated:
                             col_x, col_y = st.columns(2)
                             
                             with col_x:
-                                save_path = st.text_input("Save Directory:", value="downloads/")
+                                save_path = st.text_input("Save Directory:", value="download/")
                             
                             with col_y:
                                 if st.button("📥 Download File"):
@@ -693,6 +710,21 @@ if st.session_state.cookie_api and st.session_state.cookie_validated:
                             
                             # Direct download link
                             st.text_input("Direct Download URL:", value=file_info['download_link'])
+                            
+                            # Open Direct File Link button
+                            col_open, col_space = st.columns([2, 1])
+                            with col_open:
+                                if st.button("📥 Open Direct File Link", key="cookie_open_direct_link"):
+                                    preferred_browser = st.session_state.get('preferred_browser', None)
+                                    
+                                    with st.spinner("🌐 Opening direct file link in browser..."):
+                                        result = open_direct_file_link(file_info, browser=preferred_browser)
+                                    
+                                    # Display result
+                                    display_browser_open_result(result, show_details=True)
+                                    
+                                    if result['status'] == 'success':
+                                        st.balloons()  # Celebrate success!
                 else:
                     st.error("Please enter a TeraBox URL")
     
@@ -732,8 +764,20 @@ if st.session_state.cookie_api and st.session_state.cookie_validated:
                                 with col_b:
                                     if result.get('download_link'):
                                         st.text_input("Download URL:", value=result['download_link'], key=f"url_{i}")
-                                        if st.button(f"📥 Download", key=f"dl_{i}"):
-                                            download_file_with_progress(result, "downloads/")
+                                        
+                                        col_dl, col_open = st.columns(2)
+                                        with col_dl:
+                                            if st.button(f"📥 Download", key=f"dl_{i}"):
+                                                download_file_with_progress(result, "download/")
+                                        
+                                        with col_open:
+                                            if st.button(f"🌐 Open Link", key=f"cookie_open_{i}"):
+                                                preferred_browser = st.session_state.get('preferred_browser', None)
+                                                with st.spinner("🌐 Opening link..."):
+                                                    open_result = open_direct_file_link(result, browser=preferred_browser)
+                                                display_browser_open_result(open_result, show_details=False)
+                                                if open_result['status'] == 'success':
+                                                    st.balloons()
                                     else:
                                         st.warning("No download link available")
                 else:

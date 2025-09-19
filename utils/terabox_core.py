@@ -10,18 +10,25 @@ import time
 from typing import Dict, List, Any, Optional
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-from config import (
+from utils.config import (
     TeraboxError, ExtractionError, DownloadError, 
     log_error, log_info, config
 )
+from utils.terabox_config import get_config_manager
 
 class TeraboxCore:
     """Core TeraBox processing class combining all three modes"""
     
-    def __init__(self, mode: int = 3):
-        self.mode = mode
-        self.max_retries = 3
-        self.retry_delay = 1.0
+    def __init__(self, mode: int = None):
+        # Get configuration
+        self.config_manager = get_config_manager()
+        self.unofficial_config = self.config_manager.get_unofficial_config()
+        self.network_config = self.config_manager.get_network_config()
+        
+        # Use config values
+        self.mode = mode if mode is not None else self.unofficial_config.default_mode
+        self.max_retries = self.unofficial_config.max_retries
+        self.retry_delay = self.unofficial_config.retry_delay
         
         # Rotate user agents to avoid detection
         self.user_agents = [
@@ -293,13 +300,13 @@ class TeraboxCore:
                 
                 # Get sign and timestamp from external service with enhanced error handling
                 try:
-                    api_base = 'https://terabox.hnn.workers.dev/api/get-info'
+                    api_base = f'{self.unofficial_config.external_service_url}/api/get-info'
                     post_url = f'{api_base}?shorturl={short_url}&pwd='
                     
                     headers_post = {
                         'accept': 'application/json, text/plain, */*',
                         'accept-language': 'en-US,en;q=0.9,id;q=0.8',
-                        'referer': 'https://terabox.hnn.workers.dev/',
+                        'referer': f'{self.unofficial_config.external_service_url}/',
                         'sec-fetch-mode': 'cors',
                         'sec-fetch-site': 'same-origin',
                         'user-agent': random.choice(self.user_agents),
@@ -488,7 +495,7 @@ class TeraboxCore:
         """Generate download links using mode 3 (external service)"""
         result = {'status': 'failed', 'download_link': {}}
         
-        domain = 'https://terabox.hnn.workers.dev/'
+        domain = f'{self.unofficial_config.external_service_url}/'
         api_url = f'{domain}api'
         
         headers = {

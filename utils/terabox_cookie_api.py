@@ -13,7 +13,7 @@ import json
 import time
 from typing import Dict, List, Any, Optional, Callable
 from urllib.parse import urlparse, parse_qs
-from config import log_error, log_info
+from utils.config import log_error, log_info, get_default_download_path
 
 class TeraBoxCookieAPI:
     """Cookie-based TeraBox API client similar to terabox-downloader package"""
@@ -527,9 +527,10 @@ class TeraBoxCookieAPI:
         try:
             # Prepare save path
             if save_path is None:
-                save_path = os.getcwd()
-            
-            os.makedirs(save_path, exist_ok=True)
+                save_path = get_default_download_path()
+            else:
+                # Ensure the directory exists
+                os.makedirs(save_path, exist_ok=True)
             
             file_name = file_info.get('file_name', 'downloaded_file')
             file_path = os.path.join(save_path, file_name)
