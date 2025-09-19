@@ -11,7 +11,10 @@
     },
     "rapidapi": {
       "api_key": "bac1b38dbamsh7603892419d5fbcp130e37jsnf1ee9d78e339",
-      "api_key1": "bfa3badc00msh85dd262668d4e7fp146cebjsnc55b1d0c2132",
+      "api_keys": [
+        "bac1b38dbamsh7603892419d5fbcp130e37jsnf1ee9d78e339",
+        "bfa3badc00msh85dd262668d4e7fp146cebjsnc55b1d0c2132"
+      ],
       "base_url": "https://terabox-downloader-direct-download-link-generator2.p.rapidapi.com",
       "host": "terabox-downloader-direct-download-link-generator2.p.rapidapi.com",
       "timeout": 30,
@@ -19,6 +22,10 @@
       "retry_delay": 2.0,
       "enable_cache": true,
       "cache_ttl_hours": 24,
+      "enable_key_rotation": true,
+      "rate_limit_retry_delay": 60.0,
+      "key_rotation_on_error": true,
+      "max_key_retries": 2,
       "validation": {
         "enable_format_validation": true,
         "enable_live_validation": true,

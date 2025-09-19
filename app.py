@@ -842,7 +842,7 @@ def main():
                 elif mode_select == '🍪 Cookie Mode':
                     st.switch_page("pages/🍪_Cookie_Mode.py")
                 elif mode_select == '💳 RapidAPI Mode':
-                    st.switch_page("pages/💳_RapidAPI_Mode.py")
+                    st.switch_page("pages/RapidAPI_Mode.py")
                 elif mode_select == '📊 Compare All':
                     st.switch_page("pages/📊_Mode_Comparison.py")
         

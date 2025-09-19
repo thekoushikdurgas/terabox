@@ -69,7 +69,7 @@ This document summarizes the comprehensive enhancements made to the TeraDL Rapid
 - Filename sanitization
 - Enhanced error reporting
 
-### 4. **Improved User Interface** (`pages/💳_RapidAPI_Mode.py`)
+### 4. **Improved User Interface** (`pages/RapidAPI_Mode.py`)
 
 #### ✅ **Enhanced Single File Processing:**
 

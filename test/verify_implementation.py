@@ -11,7 +11,7 @@ def verify_files_exist():
     
     required_files = [
         "utils/browser_utils.py",
-        "pages/💳_RapidAPI_Mode.py", 
+        "pages/RapidAPI_Mode.py", 
         "pages/🍪_Cookie_Mode.py",
         "pages/📁_File_Manager.py",
         "pages/⚙️_Settings.py",
@@ -61,7 +61,7 @@ def verify_page_modifications():
     print("\n🔍 Verifying Page Modifications...")
     
     pages_to_check = {
-        "pages/💳_RapidAPI_Mode.py": [
+        "pages/RapidAPI_Mode.py": [
             "from utils.browser_utils import",
             "Open Direct File Link",
             "create_browser_selection_ui"

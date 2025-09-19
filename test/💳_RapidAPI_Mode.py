@@ -4,27 +4,45 @@ RapidAPI Mode Page - Commercial TeraBox Service Interface
 This page provides access to the commercial RapidAPI TeraBox service, offering
 professional-grade reliability and support for business applications.
 
+ENHANCED VERSION WITH COMPREHENSIVE DEBUGGING AND COMPONENT ARCHITECTURE
+
 Page Features:
-- API key validation and management
-- Single file processing with direct links
-- Bulk file processing for multiple URLs
-- Text processing to extract TeraBox links
-- CSV database management for link collections
-- Cache management and optimization
-- Comprehensive testing and debugging tools
+- API key validation and management with multi-key rotation support
+- Single file processing with direct links and enhanced progress tracking
+- Bulk file processing for multiple URLs with real-time progress monitoring
+- Text processing to extract TeraBox links with advanced pattern matching
+- CSV database management for link collections with enhanced analytics
+- Cache management and optimization with performance monitoring
+- Comprehensive testing and debugging tools with detailed logging
 
 UI Architecture:
-- Tab-based interface for organized functionality
-- Real-time validation feedback
-- Progress tracking for long operations
-- Detailed error reporting and troubleshooting
-- Browser integration for direct file access
+- Tab-based interface for organized functionality with component separation
+- Real-time validation feedback with enhanced user experience
+- Progress tracking for long operations with speed and ETA calculations
+- Detailed error reporting and troubleshooting with debug information
+- Browser integration for direct file access with multi-browser support
 
 State Management:
-- Session state for API client persistence
-- Validation status tracking
-- Processing result caching
-- User preference storage
+- Session state for API client persistence with enhanced state tracking
+- Validation status tracking with detailed validation results
+- Processing result caching with comprehensive cache analytics
+- User preference storage with local storage integration
+
+Enhanced Debugging Features:
+- Comprehensive logging at every operation level
+- Performance monitoring with timing analysis
+- User action tracking for debugging and optimization
+- API call monitoring with request/response logging
+- Error tracking with detailed context and recovery suggestions
+- Component lifecycle monitoring and management
+- Memory usage tracking and optimization
+
+Component Architecture:
+- Modular component design for better organization and reusability
+- Enhanced error handling with user-friendly messages and debug info
+- Performance monitoring with detailed analytics and bottleneck identification
+- State management integration with centralized state coordination
+- Browser integration with multi-browser support and fallback mechanisms
 """
 
 import streamlit as st
@@ -33,7 +51,7 @@ import re
 import csv
 import os
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 from utils.terabox_rapidapi import TeraBoxRapidAPI
 from typing import Dict, Any, List
 from utils.browser_utils import open_direct_file_link, display_browser_open_result, create_browser_selection_ui
@@ -42,9 +60,28 @@ from utils.state_manager import StateManager, BatchStateUpdate
 from utils.config import log_info, log_error
 import json
 
+# Enhanced debugging and monitoring imports
+from utils.rapidapi_debug_logger import (
+    rapidapi_debug_logger,
+    log_component_init,
+    log_component_render,
+    log_user_action,
+    log_api_call,
+    log_api_response,
+    monitor_operation,
+    get_debug_summary
+)
+from utils.rapidapi_utils import (
+    monitor_component_performance,
+    create_enhanced_error_info,
+    create_operation_statistics
+)
+
 def extract_terabox_links(text: str) -> List[str]:
     """
     Extract all TeraBox/TeraShare links from text using comprehensive pattern matching
+    
+    ENHANCED VERSION WITH COMPREHENSIVE DEBUGGING AND PERFORMANCE MONITORING
     
     This function implements a robust link extraction system that can identify
     TeraBox links in various formats from any text input.
@@ -56,17 +93,40 @@ def extract_terabox_links(text: str) -> List[str]:
         List of unique TeraBox links found in the text
         
     Pattern Matching Strategy:
-    - Multiple regex patterns for different TeraBox domains
-    - Case-insensitive matching for flexibility
-    - Support for both /s/ and ?surl= URL formats
-    - Comprehensive domain coverage for all TeraBox variants
+    - Multiple regex patterns for different TeraBox domains (15+ patterns)
+    - Case-insensitive matching for flexibility and robustness
+    - Support for both /s/ and ?surl= URL formats with parameter handling
+    - Comprehensive domain coverage for all TeraBox variants and mirrors
+    - Enhanced pattern performance monitoring and optimization
     
     Deduplication Algorithm:
-    - Preserves original order of links
-    - Removes exact duplicates
-    - Uses set-based tracking for O(1) duplicate detection
+    - Preserves original order of links for user experience
+    - Removes exact duplicates with detailed tracking
+    - Uses set-based tracking for O(1) duplicate detection performance
+    - Advanced duplicate analysis with statistics collection
+    
+    Enhanced Debugging Features:
+    - Comprehensive operation monitoring and performance tracking
+    - Detailed pattern matching statistics and timing analysis
+    - Text preprocessing analysis with character encoding handling
+    - Link validation with domain classification and error categorization
+    - Memory usage monitoring and optimization suggestions
+    - User action tracking for debugging and usage analysis
     """
-    log_info(f"Starting TeraBox link extraction from text - Length: {len(text)} characters")
+    # Enhanced logging with component tracking
+    log_component_init('TextProcessor', text_length=len(text), text_lines=len(text.splitlines()))
+    log_info(f"[ENHANCED] Starting TeraBox link extraction from text - Length: {len(text)} characters")
+    
+    # Performance monitoring setup
+    extraction_start_time = time.time()
+    
+    # User action tracking for debugging
+    log_user_action('TextProcessor', 'extract_links_initiated', {
+        'text_length': len(text),
+        'text_lines': len(text.splitlines()),
+        'has_http_links': 'http' in text.lower(),
+        'has_terabox_keywords': any(keyword in text.lower() for keyword in ['terabox', 'terashare', 'terafile'])
+    })
     
     # Comprehensive TeraBox URL Patterns
     # Purpose: Match all known TeraBox domain and URL format variations
@@ -217,10 +277,10 @@ def _get_pattern_description(pattern: str, index: int) -> str:
     pattern_descriptions = {
         'terasharelink': 'TeraShare Links',
         'terafileshare': 'TeraFile Share Links',
-        'terabox\.app.*sharing': 'Official App Sharing',
-        'terabox\.com.*sharing': 'Official Sharing Links',
-        'terabox\.com/s': 'Standard Short Links',
-        'terabox\.app/s': 'App Short Links',
+        'terabox\\.app.*sharing': 'Official App Sharing',
+        'terabox\\.com.*sharing': 'Official Sharing Links',
+        'terabox\\.com/s': 'Standard Short Links',
+        'terabox\\.app/s': 'App Short Links',
         '1024terabox': '1024 TeraBox Mirror',
         '1024tera': '1024 Tera Mirror',
         'teraboxapp': 'TeraBox App Domain',
@@ -802,20 +862,31 @@ def update_csv_with_response(link: str, response_data: Dict[str, Any], csv_path:
             for row in reader:
                 if row['Link'] == link:
                     found_link = True
-                    # Update row with response data - only update specific fields
+                    
+                    # Check if this was a successful API response (status code 200)
+                    api_success = response_data.get('_api_success', False)
+                    api_status_code = response_data.get('_api_status_code', 'unknown')
+                    
                     if 'error' in response_data:
-                        # Handle error response - only update status-related fields
-                        row['Status'] = 'Failed'
-                        row['Processed'] = 'Yes'
-                        if 'Error_Message' in row:  # Only update if field exists
+                        # Handle error response - check if it was a successful API call or not
+                        if api_success and api_status_code == 200:
+                            # API call was successful (200) but no valid data found
+                            row['Status'] = 'Processed'
+                            row['Processed'] = 'Yes'  # API worked, but no valid file data
+                        else:
+                            # API call failed (non-200 status code)
+                            row['Status'] = 'Failed'
+                            row['Processed'] = 'No'  # API call failed, not processed
+                        
+                        if 'Error_Message' in row:
                             row['Error_Message'] = response_data['error']
-                        if 'Processed_At' in row:  # Only update if field exists
+                        if 'Processed_At' in row:
                             row['Processed_At'] = timestamp
-                        log_info(f"Updated CSV row with error: {response_data['error']}")
+                        log_info(f"Updated CSV row with error (API Status: {api_status_code}): {response_data['error']}")
                     else:
-                        # Handle successful response - update all relevant fields
+                        # Handle successful response with valid data (must be status code 200)
                         row['Status'] = 'Processed'
-                        row['Processed'] = 'Yes'
+                        row['Processed'] = 'Yes'  # Only set to Yes for successful 200 responses
                         
                         # Only update extended fields if they exist in the schema
                         if 'File_Name' in row:
@@ -835,7 +906,7 @@ def update_csv_with_response(link: str, response_data: Dict[str, Any], csv_path:
                         if 'Error_Message' in row:
                             row['Error_Message'] = ''
                         
-                        log_info(f"Updated CSV row with successful response: {response_data.get('file_name', 'Unknown')}")
+                        log_info(f"Updated CSV row with successful response (Status: 200): {response_data.get('file_name', 'Unknown')}")
                 
                 updated_rows.append(row)
         
@@ -909,6 +980,58 @@ def update_csv_link_status(link: str, status: str, processed: str = "Yes", csv_p
         
     except Exception as e:
         log_error(e, "update_csv_link_status")
+        return False
+
+def reset_failed_links_to_pending(csv_path: str = "utils/terebox.csv") -> bool:
+    """
+    Reset failed links (non-200 status codes) back to pending status for retry
+    
+    Args:
+        csv_path: Path to CSV database file
+        
+    Returns:
+        bool: True if reset successfully, False otherwise
+    """
+    log_info("Resetting failed links back to pending status")
+    
+    try:
+        if not os.path.exists(csv_path):
+            log_info("CSV file does not exist, cannot reset")
+            return False
+        
+        # Read all existing data
+        updated_rows = []
+        reset_count = 0
+        
+        with open(csv_path, 'r', newline='', encoding='utf-8') as file:
+            reader = csv.DictReader(file)
+            fieldnames = reader.fieldnames
+            
+            for row in reader:
+                # Reset failed links (Status = Failed and Processed = No) back to pending
+                if row.get('Status') == 'Failed' and row.get('Processed') == 'No':
+                    row['Status'] = 'Pending'
+                    row['Processed'] = 'No'
+                    if 'Error_Message' in row:
+                        row['Error_Message'] = ''
+                    if 'Processed_At' in row:
+                        row['Processed_At'] = ''
+                    reset_count += 1
+                    log_info(f"Reset failed link to pending: {row.get('SURL', 'Unknown')}")
+                
+                updated_rows.append(row)
+        
+        # Write back updated data
+        with open(csv_path, 'w', newline='', encoding='utf-8') as file:
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(updated_rows)
+        
+        log_info(f"Reset completed - {reset_count} failed links reset to pending status")
+        return True
+        
+    except Exception as e:
+        log_error(e, "reset_failed_links_to_pending")
         return False
 
 def download_file_with_progress(file_info: Dict[str, Any]):
@@ -1227,47 +1350,96 @@ if st.session_state.rapidapi_client:
         # with st.expander("🔍 API Details"):
         #     st.json(api_status)
 else:
-    api_key_input = st.text_input(
-            "Enter your RapidAPI Key:",
-            type="password",
-            value=st.session_state.current_rapidapi_key,
-            placeholder=rapidapi_config.api_key or "298bbd7e09msh8c672d04ba26de4p154bc9jsn9de6459d8a13",
-            help="Your X-RapidAPI-Key from the RapidAPI dashboard (Format: [alphanumeric]msh[alphanumeric]jsn[alphanumeric], 50 characters)"
-    )
-    
-    # Real-time format validation
-    if api_key_input.strip():
-        temp_client = TeraBoxRapidAPI()
-        format_check = temp_client.quick_validate_api_key_format(api_key_input.strip())
+        # Check if multiple keys are configured
+        configured_keys = config_mgr.get_rapidapi_keys()
+        has_multiple_keys = len(configured_keys) > 1
         
-        if format_check['status'] == 'success':
-            st.success("✅ API key format is valid")
-            with st.expander("📋 Format Details", expanded=False):
-                st.json(format_check['details'])
+        if has_multiple_keys:
+            st.info(f"✅ **Multiple API Keys Configured:** {len(configured_keys)} keys available for rotation")
+            
+            # Show key management interface
+            with st.expander("🔑 Manage API Keys", expanded=False):
+                st.markdown("**📋 Current API Keys:**")
+                
+                for i, key in enumerate(configured_keys):
+                    col_key, col_remove = st.columns([4, 1])
+                    
+                    with col_key:
+                        masked_key = f"{key[:8]}...{key[-8:]}" if len(key) >= 16 else "***"
+                        st.text_input(f"Key {i+1}:", value=masked_key, disabled=True, key=f"existing_key_{i}")
+                    
+                    with col_remove:
+                        if len(configured_keys) > 1:  # Don't allow removing the last key
+                            if st.button(f"🗑️", key=f"remove_key_{i}", help=f"Remove key {i+1}"):
+                                if config_mgr.remove_rapidapi_key(key):
+                                    st.success(f"Key {i+1} removed!")
+                                    st.rerun()
+                                else:
+                                    st.error("Failed to remove key")
+                        else:
+                            st.caption("Last key")
+                
+                st.markdown("**➕ Add New API Key:**")
+                new_api_key = st.text_input(
+                    "Additional RapidAPI Key:",
+                    type="password",
+                    placeholder="298bbd7e09msh8c672d04ba26de4p154bc9jsn9de6459d8a13",
+                    help="Add another RapidAPI key for rotation",
+                    key="new_api_key_input"
+                )
+                
+                if st.button("➕ Add Key", key="add_new_key"):
+                    if new_api_key.strip():
+                        if config_mgr.add_rapidapi_key(new_api_key.strip()):
+                            st.success("New API key added successfully!")
+                            st.rerun()
+                        else:
+                            st.warning("Key already exists or failed to add")
+                    else:
+                        st.error("Please enter a valid API key")
         else:
-            st.warning(f"⚠️ Format Issue: {format_check['message']}")
-            if 'details' in format_check:
-                st.info(f"💡 {format_check['details']}")
+            # Single key interface (existing functionality)
+            api_key_input = st.text_input(
+                "Enter your RapidAPI Key:",
+                type="password",
+                value=st.session_state.current_rapidapi_key,
+                placeholder=rapidapi_config.api_key or "298bbd7e09msh8c672d04ba26de4p154bc9jsn9de6459d8a13",
+                help="Your X-RapidAPI-Key from the RapidAPI dashboard (Format: [alphanumeric]msh[alphanumeric]jsn[alphanumeric], 50 characters)"
+            )
+            
+            # Real-time format validation
+            if api_key_input.strip():
+                temp_client = TeraBoxRapidAPI()
+                format_check = temp_client.quick_validate_api_key_format(api_key_input.strip())
                 
-            # Show format requirements
-            with st.expander("📋 RapidAPI Key Format Requirements", expanded=True):
-                st.markdown("""
-                **Valid RapidAPI Key Format:**
-                - **Length**: Exactly 50 characters
-                - **Pattern**: Contains 'msh' and 'jsn' markers
-                - **Characters**: Only letters (a-z, A-Z) and numbers (0-9)
-                - **Example**: `298bbd7e09msh8c672d04ba26de4p154bc9jsn9de6459d8a13`
-                
-                **Common Issues:**
-                - ❌ Wrong length (not 50 characters)
-                - ❌ Missing 'msh' or 'jsn' markers
-                - ❌ Contains special characters or spaces
-                - ❌ Copy-paste errors or truncated key
-                """)
+                if format_check['status'] == 'success':
+                    st.success("✅ API key format is valid")
+                    with st.expander("📋 Format Details", expanded=False):
+                        st.json(format_check['details'])
+                else:
+                    st.warning(f"⚠️ Format Issue: {format_check['message']}")
+                    if 'details' in format_check:
+                        st.info(f"💡 {format_check['details']}")
+                        
+                    # Show format requirements
+                    with st.expander("📋 RapidAPI Key Format Requirements", expanded=True):
+                        st.markdown("""
+                        **Valid RapidAPI Key Format:**
+                        - **Length**: Exactly 50 characters
+                        - **Pattern**: Contains 'msh' and 'jsn' markers
+                        - **Characters**: Only letters (a-z, A-Z) and numbers (0-9)
+                        - **Example**: `298bbd7e09msh8c672d04ba26de4p154bc9jsn9de6459d8a13`
+                        
+                        **Common Issues:**
+                        - ❌ Wrong length (not 50 characters)
+                        - ❌ Missing 'msh' or 'jsn' markers
+                        - ❌ Contains special characters or spaces
+                        - ❌ Copy-paste errors or truncated key
+                        """)
         
-    col_a, col_b, col_c = st.columns(3)
+        col_a, col_b, col_c = st.columns(3)
         
-    with col_a:
+        with col_a:
             if st.button("🔍 Validate API Key", type="primary"):
                 # API Key Validation User Action
                 # Purpose: Validate user-provided RapidAPI key
@@ -1337,21 +1509,21 @@ else:
                             st.info(f"Details: {validation_result['details']}")
                 else:
                     st.error("Please enter an API key")
-    
-    with col_b:
-        if st.button("⚡ Quick Format Check"):
-            if api_key_input.strip():
-                temp_client = TeraBoxRapidAPI()
-                format_result = temp_client.quick_validate_api_key_format(api_key_input.strip())
-                
-                if format_result['status'] == 'success':
-                    st.success("✅ Format is valid!")
-                else:
-                    st.error(f"❌ {format_result['message']}")
-            else:
-                st.error("Please enter an API key")
         
-    with col_c:
+        with col_b:
+            if st.button("⚡ Quick Format Check"):
+                if api_key_input.strip():
+                    temp_client = TeraBoxRapidAPI()
+                    format_result = temp_client.quick_validate_api_key_format(api_key_input.strip())
+                    
+                    if format_result['status'] == 'success':
+                        st.success("✅ Format is valid!")
+                    else:
+                        st.error(f"❌ {format_result['message']}")
+                else:
+                    st.error("Please enter an API key")
+        
+        with col_c:
             if st.button("🗑️ Clear API Key"):
                 st.session_state.rapidapi_client = None
                 st.session_state.rapidapi_validated = False
@@ -1363,9 +1535,6 @@ else:
                     'rapidapi_validated': False,
                     'current_rapidapi_key': ''
                 })
-    st.warning("💳 **API Status: Not Configured**")
-    st.caption("Enter and validate your API key above")
-
 
 # File Processing Section
 if st.session_state.rapidapi_client and st.session_state.rapidapi_validated:
@@ -1387,7 +1556,7 @@ if st.session_state.rapidapi_client and st.session_state.rapidapi_validated:
             The selected browser will be used for all "Open Direct File Link" operations.
             """)
     
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["🔗 Single File", "📋 Multiple Files", "📝 Text Processor", "📊 CSV Manager", "🧪 Test & Debug", "📊 Usage Info", "💾 Cache Manager"])
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs(["🔗 Single File", "📋 Multiple Files", "📝 Text Processor", "📊 CSV Manager", "🧪 Test & Debug", "📊 Usage Info", "💾 Cache Manager", "🔑 Key Manager"])
     
     with tab1:
         st.subheader("🔗 Single File Processing")
@@ -2081,6 +2250,8 @@ Or any other text with TeraBox links...""",
         - ✅ Track processing status and comprehensive response data
         - 🌐 **NEW:** Open all download links in browser with one click
         - 📊 **NEW:** View thumbnails, file sizes, and complete API responses
+        - 🔄 **NEW:** Reset failed links for retry (only 200 status = processed)
+        - 📈 **NEW:** Enhanced analytics with proper status code tracking
         """)
         
         # Load links from CSV with automatic schema migration
@@ -2097,181 +2268,882 @@ Or any other text with TeraBox links...""",
                 st.info("ℹ️ CSV database loaded. Enhanced features will be available after processing links.")
         
         if csv_data:
-            # Display CSV statistics
-            st.subheader("📈 Database Statistics")
+            # Enhanced Database Statistics
+            st.subheader("📈 Enhanced Database Statistics")
             
-            col_stat1, col_stat2, col_stat3, col_stat4 = st.columns(4)
+            # Calculate comprehensive statistics with proper logic
+            total_links = len(csv_data)
+            
+            # Processed = Yes means API returned status code 200 (regardless of whether data was found)
+            processed_count = len([row for row in csv_data if row.get('Processed', 'No') == 'Yes'])
+            
+            # Pending = No means API has not been called yet or returned non-200 status
+            pending_count = len([row for row in csv_data if row.get('Processed', 'No') == 'No'])
+            
+            # Success = API returned 200 AND valid file data was extracted
+            success_count = len([row for row in csv_data if row.get('Status') == 'Processed' and row.get('Processed') == 'Yes'])
+            
+            # Failed = API was called but returned non-200 status code
+            failed_count = len([row for row in csv_data if row.get('Status') == 'Failed' and row.get('Processed') == 'No'])
+            
+            # Opened = Links that were successfully opened in browser
+            opened_count = len([row for row in csv_data if row.get('Status') == 'Opened'])
+            
+            # Unique domains
+            unique_domains = len(set(row.get('Domain', 'Unknown') for row in csv_data))
+            
+            # Calculate percentages
+            processed_percentage = (processed_count / total_links * 100) if total_links > 0 else 0
+            success_rate = (success_count / processed_count * 100) if processed_count > 0 else 0
+            
+            # Basic Statistics Row
+            col_stat1, col_stat2, col_stat3, col_stat4, col_stat5 = st.columns(5)
             
             with col_stat1:
-                st.metric("📊 Total Links", len(csv_data))
+                st.metric("📊 Total Links", total_links)
             
             with col_stat2:
-                processed_count = len([row for row in csv_data if row.get('Processed', 'No') == 'Yes'])
-                st.metric("✅ Processed", processed_count)
+                st.metric("✅ Processed", processed_count, 
+                         delta=f"{processed_percentage:.1f}% of total")
             
             with col_stat3:
-                pending_count = len([row for row in csv_data if row.get('Processed', 'No') == 'No'])
                 st.metric("⏳ Pending", pending_count)
             
             with col_stat4:
-                unique_domains = len(set(row.get('Domain', 'Unknown') for row in csv_data))
+                st.metric("🎯 Success Rate", f"{success_rate:.1f}%",
+                         delta=f"{success_count} successful")
+            
+            with col_stat5:
                 st.metric("🌐 Domains", unique_domains)
             
-            # Filter options
-            st.markdown("---")
-            st.subheader("🔍 Filter & Search")
+            # Advanced Statistics Row
+            st.markdown("### 📊 Detailed Analytics")
+            col_advanced1, col_advanced2, col_advanced3, col_advanced4 = st.columns(4)
             
-            col_filter1, col_filter2 = st.columns(2)
+            with col_advanced1:
+                st.metric("🔄 Successfully Processed", success_count)
+                st.metric("❌ Failed Processing", failed_count)
             
-            with col_filter1:
-                # Status filter
-                status_filter = st.selectbox(
-                    "Filter by Status:",
-                    ["All", "Pending", "Processed"],
-                    key="csv_status_filter"
-                )
+            with col_advanced2:
+                st.metric("🌐 Links Opened", opened_count)
+                # Calculate file size statistics for processed files
+                processed_files_with_size = [row for row in csv_data if row.get('File_Size') and row.get('File_Size') != '']
+                st.metric("📏 Files with Size Info", len(processed_files_with_size))
+            
+            with col_advanced3:
+                # Domain distribution
+                domain_counts = {}
+                for row in csv_data:
+                    domain = row.get('Domain', 'Unknown')
+                    domain_counts[domain] = domain_counts.get(domain, 0) + 1
+                top_domain = max(domain_counts, key=domain_counts.get) if domain_counts else 'None'
+                st.metric("🏆 Top Domain", top_domain, 
+                         delta=f"{domain_counts.get(top_domain, 0)} links")
+            
+            with col_advanced4:
+                # Time-based statistics
+                recent_links = [row for row in csv_data if row.get('Extracted_At')]
+                if recent_links:
+                    try:
+                        # Get most recent extraction date
+                        dates = [datetime.strptime(row['Extracted_At'], "%Y-%m-%d %H:%M:%S") for row in recent_links if row.get('Extracted_At')]
+                        if dates:
+                            most_recent = max(dates)
+                            days_since = (datetime.now() - most_recent).days
+                            st.metric("📅 Last Added", f"{days_since} days ago")
+                    except:
+                        st.metric("📅 Last Added", "Unknown")
+                else:
+                    st.metric("📅 Last Added", "No data")
+            
+            # Visual Analytics Section
+            st.markdown("### 📈 Visual Analytics")
+            
+            # Create tabs for different analytics views
+            analytics_tab1, analytics_tab2, analytics_tab3 = st.tabs(["📊 Status Distribution", "🌐 Domain Analysis", "📅 Timeline Analysis"])
+            
+            with analytics_tab1:
+                # Status distribution chart with proper categorization
+                status_data = {
+                    'Pending (Not Called)': pending_count,
+                    'Successfully Processed (200)': success_count,
+                    'API Failed (Non-200)': failed_count,
+                    'Links Opened': opened_count
+                }
                 
-                # Domain filter
-                all_domains = sorted(set(row.get('Domain', 'Unknown') for row in csv_data))
-                domain_filter = st.selectbox(
-                    "Filter by Domain:",
-                    ["All"] + all_domains,
-                    key="csv_domain_filter"
-                )
-            
-            with col_filter2:
-                # Search box
-                search_term = st.text_input(
-                    "Search Links (SURL or Link):",
-                    placeholder="Enter SURL or part of link...",
-                    key="csv_search"
-                )
+                # Remove zero values for cleaner chart
+                status_data = {k: v for k, v in status_data.items() if v > 0}
                 
-                # Date range filter
-                st.caption("💡 Use filters to narrow down your link collection")
-            
-            # Apply filters
-            filtered_data = csv_data.copy()
-            
-            if status_filter != "All":
-                if status_filter == "Pending":
-                    filtered_data = [row for row in filtered_data if row.get('Processed', 'No') == 'No']
-                elif status_filter == "Processed":
-                    filtered_data = [row for row in filtered_data if row.get('Processed', 'No') == 'Yes']
-            
-            if domain_filter != "All":
-                filtered_data = [row for row in filtered_data if row.get('Domain', 'Unknown') == domain_filter]
-            
-            if search_term:
-                filtered_data = [row for row in filtered_data 
-                               if search_term.lower() in row.get('SURL', '').lower() 
-                               or search_term.lower() in row.get('Link', '').lower()]
-            
-            # Display filtered results
-            st.markdown("---")
-            st.subheader(f"📋 Links Database ({len(filtered_data)} of {len(csv_data)} shown)")
-            
-            if filtered_data:
-                # Create DataFrame for display
-                display_df = pd.DataFrame(filtered_data)
-                
-                # Customize column display
-                if not display_df.empty:
-                    # Truncate long URLs for better display
-                    display_df['Link_Short'] = display_df['Link'].apply(
-                        lambda x: x[:50] + '...' if len(str(x)) > 50 else str(x)
-                    )
+                if status_data:
+                    col_chart1, col_chart2 = st.columns([2, 1])
                     
-                    # Add processed file information for better display
-                    display_df['File_Info'] = display_df.apply(
-                        lambda row: f"{row.get('File_Name', '')[:30]}..." if row.get('File_Name') else 'Not processed',
-                        axis=1
-                    )
+                    with col_chart1:
+                        # Create a simple bar chart using Streamlit's built-in chart
+                        chart_df = pd.DataFrame(list(status_data.items()), columns=['Status', 'Count'])
+                        st.bar_chart(chart_df.set_index('Status'))
                     
-                    # Reorder columns for better display
-                    column_order = ['ID', 'SURL', 'Link_Short', 'Domain', 'Status', 'Processed', 'File_Info', 'File_Size', 'Processed_At']
-                    display_columns = [col for col in column_order if col in display_df.columns]
-                    
-                    st.dataframe(
-                        display_df[display_columns],
-                        width='stretch',
-                        hide_index=True,
-                        column_config={
-                            "ID": st.column_config.NumberColumn("ID", width="small"),
-                            "SURL": st.column_config.TextColumn("SURL", width="medium"),
-                            "Link_Short": st.column_config.TextColumn("Link", width="large"),
-                            "Domain": st.column_config.TextColumn("Domain", width="medium"),
-                            "Status": st.column_config.TextColumn("Status", width="small"),
-                            "Processed": st.column_config.TextColumn("Processed", width="small"),
-                            "File_Info": st.column_config.TextColumn("File", width="medium"),
-                            "File_Size": st.column_config.TextColumn("Size", width="small"),
-                            "Processed_At": st.column_config.TextColumn("Processed At", width="medium")
-                        }
-                    )
-                    
-                    # Add expandable details for processed files
-                    st.markdown("---")
-                    st.subheader("🔍 Detailed File Information")
-                    
-                    # Filter for processed files only
-                    processed_files = [row for row in filtered_data if row.get('Processed') == 'Yes' and row.get('Status') == 'Processed']
-                    
-                    if processed_files:
-                        selected_file_id = st.selectbox(
-                            "Select a processed file to view details:",
-                            options=[f"ID {row['ID']}: {row.get('File_Name', row.get('SURL', 'Unknown'))}" for row in processed_files],
-                            key="csv_file_selector"
-                        )
+                    with col_chart2:
+                        st.markdown("**📊 Status Breakdown:**")
+                        for status, count in status_data.items():
+                            percentage = (count / total_links * 100) if total_links > 0 else 0
+                            st.write(f"**{status}:** {count} ({percentage:.1f}%)")
                         
-                        if selected_file_id:
-                            # Extract ID from selection
-                            file_id = int(selected_file_id.split(":")[0].replace("ID ", ""))
-                            selected_file = next((row for row in processed_files if int(row['ID']) == file_id), None)
-                            
-                            if selected_file:
-                                with st.expander(f"📄 {selected_file.get('File_Name', 'Unknown File')}", expanded=True):
-                                    col_details1, col_details2 = st.columns(2)
-                                    
-                                    with col_details1:
-                                        st.markdown("**📊 File Information:**")
-                                        st.text(f"📄 Name: {selected_file.get('File_Name', 'N/A')}")
-                                        st.text(f"📏 Size: {selected_file.get('File_Size', 'N/A')}")
-                                        st.text(f"📁 Type: {selected_file.get('File_Type', 'N/A')}")
-                                        st.text(f"🌐 Domain: {selected_file.get('Domain', 'N/A')}")
-                                        st.text(f"⏰ Processed: {selected_file.get('Processed_At', 'N/A')}")
-                                    
-                                    with col_details2:
-                                        st.markdown("**🔗 Links:**")
-                                        if selected_file.get('Download_Link'):
-                                            st.text_input("Direct Download:", value=selected_file['Download_Link'], key=f"detail_dl_{file_id}")
-                                        
-                                        if selected_file.get('Thumbnail'):
-                                            st.text_input("Thumbnail:", value=selected_file['Thumbnail'], key=f"detail_thumb_{file_id}")
-                                            # Show thumbnail image
-                                            try:
-                                                st.image(selected_file['Thumbnail'], caption="File Thumbnail", width=200)
-                                            except:
-                                                st.caption("Could not load thumbnail image")
-                                    
-                                    # Raw response data
-                                    if selected_file.get('Response_Data'):
-                                        st.markdown("**📋 Complete API Response:**")
-                                        try:
-                                            response_json = json.loads(selected_file['Response_Data'])
-                                            st.json(response_json)
-                                        except:
-                                            st.text_area("Raw Response Data:", value=selected_file['Response_Data'], height=200, key=f"raw_data_{file_id}")
+                        # Add explanation of the new logic
+                        st.markdown("---")
+                        st.markdown("**📋 Status Definitions:**")
+                        st.caption("• **Pending**: API not called yet")
+                        st.caption("• **Successfully Processed**: API returned 200 with valid data")
+                        st.caption("• **API Failed**: API returned non-200 status (401, 403, 429, etc.)")
+                        st.caption("• **Links Opened**: Successfully opened in browser")
+                else:
+                    st.info("No status data available for visualization")
+            
+            with analytics_tab2:
+                # Domain distribution analysis
+                if domain_counts:
+                    col_domain1, col_domain2 = st.columns([2, 1])
+                    
+                    with col_domain1:
+                        # Create domain distribution chart
+                        domain_df = pd.DataFrame(list(domain_counts.items()), columns=['Domain', 'Count'])
+                        domain_df = domain_df.sort_values('Count', ascending=True)
+                        st.bar_chart(domain_df.set_index('Domain'))
+                    
+                    with col_domain2:
+                        st.markdown("**🌐 Domain Distribution:**")
+                        sorted_domains = sorted(domain_counts.items(), key=lambda x: x[1], reverse=True)
+                        for domain, count in sorted_domains[:10]:  # Show top 10
+                            percentage = (count / total_links * 100) if total_links > 0 else 0
+                            st.write(f"**{domain}:** {count} ({percentage:.1f}%)")
+                else:
+                    st.info("No domain data available for visualization")
+            
+            with analytics_tab3:
+                # Timeline analysis
+                timeline_data = []
+                for row in csv_data:
+                    if row.get('Extracted_At'):
+                        try:
+                            date = datetime.strptime(row['Extracted_At'], "%Y-%m-%d %H:%M:%S")
+                            timeline_data.append(date.date())
+                        except:
+                            continue
+                
+                if timeline_data:
+                    # Count links by date
+                    date_counts = {}
+                    for date in timeline_data:
+                        date_counts[date] = date_counts.get(date, 0) + 1
+                    
+                    if date_counts:
+                        col_timeline1, col_timeline2 = st.columns([2, 1])
+                        
+                        with col_timeline1:
+                            # Create timeline chart
+                            timeline_df = pd.DataFrame(list(date_counts.items()), columns=['Date', 'Links Added'])
+                            timeline_df = timeline_df.sort_values('Date')
+                            st.line_chart(timeline_df.set_index('Date'))
+                        
+                        with col_timeline2:
+                            st.markdown("**📅 Timeline Summary:**")
+                            sorted_dates = sorted(date_counts.items(), key=lambda x: x[1], reverse=True)
+                            st.write(f"**Most Active Day:** {sorted_dates[0][0]} ({sorted_dates[0][1]} links)")
+                            st.write(f"**Total Days:** {len(date_counts)}")
+                            st.write(f"**Average per Day:** {sum(date_counts.values()) / len(date_counts):.1f}")
+                else:
+                        st.info("No timeline data available for visualization")
+    
+    with tab8:
+        st.subheader("🔑 API Key Management & Monitoring")
+        st.markdown("Monitor and manage multiple RapidAPI keys with rotation and rate limit handling.")
+        
+        # Check if client has key manager
+        if hasattr(st.session_state.rapidapi_client, 'key_manager') and st.session_state.rapidapi_client.key_manager:
+            key_manager = st.session_state.rapidapi_client.key_manager
+            
+            # Key Manager Statistics
+            st.markdown("### 📊 Key Manager Overview")
+            
+            manager_stats = key_manager.get_manager_stats()
+            
+            col_stat1, col_stat2, col_stat3, col_stat4, col_stat5 = st.columns(5)
+            
+            with col_stat1:
+                st.metric("🔑 Total Keys", manager_stats.get('total_keys', 0))
+            
+            with col_stat2:
+                st.metric("✅ Available Keys", manager_stats.get('available_keys', 0))
+            
+            with col_stat3:
+                st.metric("⚠️ Rate Limited", manager_stats.get('rate_limited_keys', 0))
+            
+            with col_stat4:
+                st.metric("❌ Failed Keys", manager_stats.get('failed_keys', 0))
+            
+            with col_stat5:
+                success_rate = manager_stats.get('success_rate', 0)
+                st.metric("🎯 Success Rate", f"{success_rate:.1f}%")
+            
+            # Additional Statistics Row
+            col_stat6, col_stat7, col_stat8, col_stat9 = st.columns(4)
+            
+            with col_stat6:
+                st.metric("📈 Total Requests", manager_stats.get('total_requests', 0))
+            
+            with col_stat7:
+                st.metric("✅ Successful", manager_stats.get('successful_requests', 0))
+            
+            with col_stat8:
+                st.metric("🔄 Key Rotations", manager_stats.get('key_rotations', 0))
+            
+            with col_stat9:
+                session_duration = manager_stats.get('session_duration', '0:00:00')
+                st.metric("⏱️ Session Time", str(session_duration).split('.')[0])
+            
+            # Individual Key Status
+            st.markdown("---")
+            st.markdown("### 🔍 Individual Key Status")
+            
+            all_keys_status = key_manager.get_all_keys_status()
+            
+            if all_keys_status:
+                # Create a table view of key statuses
+                import pandas as pd
+                
+                key_data = []
+                for key_id, status in all_keys_status.items():
+                    # Determine status emoji and color
+                    status_value = status.get('status', 'unknown')
+                    if status_value == 'healthy':
+                        status_display = "✅ Healthy"
+                    elif status_value == 'rate_limited':
+                        status_display = "⚠️ Rate Limited"
+                    elif status_value == 'failed':
+                        status_display = "❌ Failed"
+                    elif status_value == 'invalid':
+                        status_display = "🚫 Invalid"
+                    elif status_value == 'recovering':
+                        status_display = "🔄 Recovering"
                     else:
-                        st.info("ℹ️ No processed files to display details for. Process some links first!")
+                        status_display = f"❓ {status_value.title()}"
+                    
+                    key_data.append({
+                        'Key ID': key_id,
+                        'Status': status_display,
+                        'Available': '✅ Yes' if status.get('is_available', False) else '❌ No',
+                        'Total Requests': status.get('total_requests', 0),
+                        'Success Rate': f"{status.get('success_rate', 0):.1f}%",
+                        'Rate Limited Count': status.get('rate_limit_count', 0),
+                        'Consecutive Failures': status.get('consecutive_failures', 0),
+                        'Avg Response Time': f"{status.get('average_response_time', 0):.2f}s"
+                    })
                 
-                # Bulk actions
-                st.markdown("---")
-                st.subheader("🎯 Bulk Actions")
+                if key_data:
+                    df = pd.DataFrame(key_data)
+                    st.dataframe(df, width='stretch', hide_index=True)
                 
-                col_action1, col_action2, col_action3, col_action4 = st.columns(4)
+                # Detailed Key Information
+                st.markdown("### 📋 Detailed Key Information")
                 
-                with col_action1:
-                    if st.button("📊 Get File Info for All Links", type="primary", key="csv_process_all"):
+                selected_key = st.selectbox(
+                    "Select a key for detailed information:",
+                    options=list(all_keys_status.keys()),
+                    key="key_detail_selector"
+                )
+                
+                if selected_key:
+                    key_detail = all_keys_status[selected_key]
+                    
+                    col_detail1, col_detail2 = st.columns(2)
+                    
+                    with col_detail1:
+                        st.markdown("**📊 Usage Statistics:**")
+                        st.text(f"Total Requests: {key_detail.get('total_requests', 0)}")
+                        st.text(f"Successful Requests: {key_detail.get('successful_requests', 0)}")
+                        st.text(f"Failed Requests: {key_detail.get('failed_requests', 0)}")
+                        st.text(f"Success Rate: {key_detail.get('success_rate', 0):.1f}%")
+                        st.text(f"Rate Limited Count: {key_detail.get('rate_limit_count', 0)}")
+                        st.text(f"Consecutive Failures: {key_detail.get('consecutive_failures', 0)}")
+                        st.text(f"Average Response Time: {key_detail.get('average_response_time', 0):.2f}s")
+                    
+                    with col_detail2:
+                        st.markdown("**⏰ Timing Information:**")
+                        last_used = key_detail.get('last_used')
+                        last_success = key_detail.get('last_success')
+                        last_failure = key_detail.get('last_failure')
+                        rate_limited_until = key_detail.get('rate_limited_until')
+                        
+                        st.text(f"Last Used: {last_used[:19] if last_used else 'Never'}")
+                        st.text(f"Last Success: {last_success[:19] if last_success else 'Never'}")
+                        st.text(f"Last Failure: {last_failure[:19] if last_failure else 'Never'}")
+                        st.text(f"Rate Limited Until: {rate_limited_until[:19] if rate_limited_until else 'Not Limited'}")
+                        
+                        # Show key status
+                        status_value = key_detail.get('status', 'unknown')
+                        is_available = key_detail.get('is_available', False)
+                        
+                        if is_available:
+                            st.success(f"✅ Key is available for use")
+                        else:
+                            st.error(f"❌ Key is not available ({status_value})")
+            
+            # Key Management Actions
+            st.markdown("---")
+            st.markdown("### 🛠️ Key Management Actions")
+            
+            col_action1, col_action2, col_action3 = st.columns(3)
+            
+            with col_action1:
+                st.markdown("**🔄 Reset Operations:**")
+                
+                if st.button("🔄 Reset All Keys", key="reset_all_keys"):
+                    if key_manager.reset_all_keys():
+                        st.success("✅ All keys reset to healthy state!")
+                        st.rerun()
+                    else:
+                        st.error("❌ Failed to reset keys")
+                
+                # Reset individual key
+                if all_keys_status:
+                    reset_key = st.selectbox(
+                        "Reset specific key:",
+                        options=['Select key...'] + list(all_keys_status.keys()),
+                        key="reset_key_selector"
+                    )
+                    
+                    if reset_key != 'Select key...' and st.button("🔄 Reset Key", key="reset_single_key"):
+                        if key_manager.reset_key(reset_key):
+                            st.success(f"✅ Key {reset_key} reset!")
+                            st.rerun()
+                        else:
+                            st.error("❌ Failed to reset key")
+            
+            with col_action2:
+                st.markdown("**🎛️ Control Operations:**")
+                
+                # Enable/disable individual keys
+                if all_keys_status:
+                    control_key = st.selectbox(
+                        "Control specific key:",
+                        options=['Select key...'] + list(all_keys_status.keys()),
+                        key="control_key_selector"
+                    )
+                    
+                    if control_key != 'Select key...':
+                        key_status = all_keys_status[control_key]
+                        is_disabled = key_status.get('status') == 'disabled'
+                        
+                        col_enable, col_disable = st.columns(2)
+                        
+                        with col_enable:
+                            if st.button("✅ Enable", key="enable_key", disabled=not is_disabled):
+                                if key_manager.enable_key(control_key):
+                                    st.success(f"✅ Key {control_key} enabled!")
+                                    st.rerun()
+                        
+                        with col_disable:
+                            if st.button("❌ Disable", key="disable_key", disabled=is_disabled):
+                                if key_manager.disable_key(control_key):
+                                    st.success(f"❌ Key {control_key} disabled!")
+                                    st.rerun()
+            
+            with col_action3:
+                st.markdown("**📊 Export & Analysis:**")
+                
+                if st.button("📊 Export Key Statistics", key="export_key_stats"):
+                    stats_data = key_manager.export_stats()
+                    stats_json = json.dumps(stats_data, indent=2, default=str)
+                    
+                    st.download_button(
+                        label="💾 Download Statistics",
+                        data=stats_json,
+                        file_name=f"rapidapi_key_stats_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+                        mime="application/json",
+                        key="download_key_stats"
+                    )
+                
+                if st.button("🔍 Show Raw Manager Data", key="show_raw_manager"):
+                    with st.expander("Raw Key Manager Data", expanded=True):
+                        st.json(key_manager.export_stats())
+            
+            # Configuration Settings
+            st.markdown("---")
+            st.markdown("### ⚙️ Key Rotation Configuration")
+            
+            col_config1, col_config2 = st.columns(2)
+            
+            with col_config1:
+                st.markdown("**Current Settings:**")
+                config = key_manager.config
+                st.text(f"Rotation Enabled: {'✅ Yes' if config.get('enable_rotation', True) else '❌ No'}")
+                st.text(f"Rate Limit Retry Delay: {config.get('rate_limit_retry_delay', 60)} seconds")
+                st.text(f"Rotate on Error: {'✅ Yes' if config.get('key_rotation_on_error', True) else '❌ No'}")
+                st.text(f"Max Key Retries: {config.get('max_key_retries', 2)}")
+                st.text(f"Max Consecutive Failures: {config.get('max_consecutive_failures', 3)}")
+            
+            with col_config2:
+                st.markdown("**Rate Limit Detection:**")
+                keywords = config.get('rate_limit_detection_keywords', [])
+                st.text("Detection Keywords:")
+                for keyword in keywords[:5]:  # Show first 5
+                    st.text(f"  • {keyword}")
+                if len(keywords) > 5:
+                    st.text(f"  ... and {len(keywords) - 5} more")
+        
+        else:
+            st.info("🔑 **Key Manager Not Available**")
+            st.markdown("""
+            The Key Manager is available when you have a RapidAPI client with multiple keys configured.
+            
+            **To access Key Manager:**
+            1. Configure and validate your first RapidAPI key above
+            2. Add additional keys using the "Manage API Keys" section
+            3. The Key Manager will automatically handle rotation and rate limit detection
+            
+            **Key Manager Features:**
+            - **Automatic Rotation**: Seamlessly switches between keys when rate limited
+            - **Health Monitoring**: Tracks key performance and availability
+            - **Rate Limit Detection**: Intelligent detection of rate limit responses
+            - **Recovery Management**: Monitors when rate-limited keys become available again
+            - **Performance Analytics**: Detailed statistics for each key
+            """)
+            
+            if st.button("🚀 Go to Key Configuration"):
+                # Scroll to top of page
+                st.rerun()
+    
+    # Enhanced Filter & Search
+    st.markdown("---")
+    st.subheader("🔍 Advanced Filter & Search")
+    
+    # Create expandable filter sections
+    with st.expander("🎯 Basic Filters", expanded=True):
+        col_basic1, col_basic2, col_basic3 = st.columns(3)
+        
+        with col_basic1:
+            # Enhanced status filter
+            all_statuses = sorted(set([row.get('Status', 'Pending') for row in csv_data if row.get('Status')]))
+            status_options = ["All"] + all_statuses
+            status_filter = st.selectbox(
+                "Filter by Status:",
+                status_options,
+                key="csv_status_filter"
+            )
+        
+        with col_basic2:
+            # Domain filter
+            all_domains = sorted(set(row.get('Domain', 'Unknown') for row in csv_data))
+            domain_filter = st.selectbox(
+                "Filter by Domain:",
+                ["All"] + all_domains,
+                key="csv_domain_filter"
+            )
+        
+        with col_basic3:
+            # Processed filter
+            processed_filter = st.selectbox(
+                "Filter by Processing:",
+                ["All", "Processed", "Not Processed"],
+                key="csv_processed_filter"
+            )
+    
+    with st.expander("🔍 Advanced Search", expanded=True):
+        col_search1, col_search2 = st.columns(2)
+        
+        with col_search1:
+            # Multi-field search
+            search_term = st.text_input(
+                "🔍 Search in Links/SURL/File Names:",
+                placeholder="Enter search term...",
+                key="csv_search"
+            )
+            
+            # File type filter (for processed files)
+            processed_files = [row for row in csv_data if row.get('File_Type')]
+            if processed_files:
+                file_types = sorted(set([row.get('File_Type', '') for row in processed_files if row.get('File_Type')]))
+                file_type_filter = st.selectbox(
+                    "Filter by File Type:",
+                    ["All"] + file_types,
+                    key="csv_file_type_filter"
+                )
+            else:
+                file_type_filter = "All"
+        
+        with col_search2:
+            # File size filter
+            files_with_size = [row for row in csv_data if row.get('File_Size') and row.get('File_Size') != '']
+            if files_with_size:
+                st.markdown("**📏 File Size Filter:**")
+                size_filter_enabled = st.checkbox("Enable size filtering", key="size_filter_enabled")
+                
+                if size_filter_enabled:
+                    # Parse file sizes and create range slider
+                    size_values = []
+                    for row in files_with_size:
+                        size_str = row.get('File_Size', '')
+                        try:
+                            # Simple size parsing (assumes format like "7.74 MB")
+                            if 'MB' in size_str:
+                                size_mb = float(size_str.replace('MB', '').strip())
+                            elif 'GB' in size_str:
+                                size_mb = float(size_str.replace('GB', '').strip()) * 1024
+                            elif 'KB' in size_str:
+                                size_mb = float(size_str.replace('KB', '').strip()) / 1024
+                            else:
+                                size_mb = 0
+                            size_values.append(size_mb)
+                        except:
+                            continue
+                    
+                    if size_values:
+                        min_size, max_size = min(size_values), max(size_values)
+                        size_range = st.slider(
+                            "Size Range (MB):",
+                            min_value=float(min_size),
+                            max_value=float(max_size),
+                            value=(float(min_size), float(max_size)),
+                            key="csv_size_range"
+                        )
+                    else:
+                        size_range = None
+                else:
+                    size_range = None
+            else:
+                size_range = None
+    
+    with st.expander("📅 Date & Time Filters", expanded=False):
+        col_date1, col_date2 = st.columns(2)
+        
+        with col_date1:
+            # Date range filter for extraction
+            st.markdown("**📅 Extraction Date Range:**")
+            dates_available = [row for row in csv_data if row.get('Extracted_At')]
+            
+            if dates_available:
+                try:
+                    all_dates = []
+                    for row in dates_available:
+                        try:
+                            date = datetime.strptime(row['Extracted_At'], "%Y-%m-%d %H:%M:%S").date()
+                            all_dates.append(date)
+                        except:
+                            continue
+                    
+                    if all_dates:
+                        min_date, max_date = min(all_dates), max(all_dates)
+                        date_range = st.date_input(
+                            "Select date range:",
+                            value=(min_date, max_date),
+                            min_value=min_date,
+                            max_value=max_date,
+                            key="csv_date_range"
+                        )
+                    else:
+                        date_range = None
+                except:
+                    date_range = None
+            else:
+                date_range = None
+                st.info("No extraction dates available")
+        
+        with col_date2:
+            # Processing date filter
+            st.markdown("**⏰ Processing Date Filter:**")
+            processed_dates = [row for row in csv_data if row.get('Processed_At')]
+            
+            if processed_dates:
+                processing_date_filter = st.selectbox(
+                    "Show files processed:",
+                    ["All time", "Today", "This week", "This month"],
+                    key="csv_processing_date_filter"
+                )
+            else:
+                processing_date_filter = "All time"
+                st.info("No processing dates available")
+    
+    # Quick filter buttons - using URL parameters to avoid session state conflicts
+    st.markdown("**⚡ Quick Filters:**")
+    col_quick1, col_quick2, col_quick3, col_quick4, col_quick5 = st.columns(5)
+    
+    with col_quick1:
+        if st.button("🔄 Show All", key="quick_all"):
+            st.query_params.clear()
+            st.rerun()
+    
+    with col_quick2:
+        if st.button("⏳ Pending Only", key="quick_pending"):
+            st.query_params["filter"] = "pending"
+            st.rerun()
+    
+    with col_quick3:
+        if st.button("✅ Processed Only", key="quick_processed"):
+            st.query_params["filter"] = "processed"
+            st.rerun()
+    
+    with col_quick4:
+        if st.button("❌ Failed Only", key="quick_failed"):
+            st.query_params["filter"] = "failed"
+            st.rerun()
+    
+    with col_quick5:
+        if st.button("🌐 Opened Links", key="quick_opened"):
+            st.query_params["filter"] = "opened"
+            st.rerun()
+    
+    # Apply quick filters based on URL parameters
+    quick_filter = st.query_params.get("filter", None)
+    if quick_filter:
+        if quick_filter == "pending":
+            # Override filter values for pending filter
+            status_filter = "Pending"
+            processed_filter = "Not Processed"
+        elif quick_filter == "processed":
+            processed_filter = "Processed"
+        elif quick_filter == "failed":
+            status_filter = "Failed"
+        elif quick_filter == "opened":
+            status_filter = "Opened"
+        
+        # Show which quick filter is active
+        st.info(f"🎯 Quick filter active: {quick_filter.title()}")
+    
+    # Show current filter status
+    active_filters = []
+    if status_filter != "All":
+        active_filters.append(f"Status: {status_filter}")
+    if domain_filter != "All":
+        active_filters.append(f"Domain: {domain_filter}")
+    if processed_filter != "All":
+        active_filters.append(f"Processing: {processed_filter}")
+    if search_term:
+        active_filters.append(f"Search: '{search_term}'")
+    
+    if active_filters:
+        st.caption(f"🔍 Active filters: {' | '.join(active_filters)}")
+    
+    st.caption("💡 Use the filters above to narrow down your link collection. Combine multiple filters for precise results.")
+    
+    # Apply enhanced filters
+    filtered_data = csv_data.copy()
+    original_count = len(filtered_data)
+    
+    # Status filter
+    if status_filter != "All":
+        filtered_data = [row for row in filtered_data if row.get('Status', 'Pending') == status_filter]
+        log_info(f"Status filter applied: {status_filter} -> {len(filtered_data)} results")
+    
+    # Domain filter
+    if domain_filter != "All":
+        filtered_data = [row for row in filtered_data if row.get('Domain', 'Unknown') == domain_filter]
+        log_info(f"Domain filter applied: {domain_filter} -> {len(filtered_data)} results")
+    
+    # Processed filter
+    if processed_filter != "All":
+        if processed_filter == "Processed":
+            filtered_data = [row for row in filtered_data if row.get('Processed', 'No') == 'Yes']
+        elif processed_filter == "Not Processed":
+            filtered_data = [row for row in filtered_data if row.get('Processed', 'No') == 'No']
+        log_info(f"Processed filter applied: {processed_filter} -> {len(filtered_data)} results")
+    
+    # Multi-field search
+    if search_term:
+        search_lower = search_term.lower()
+        filtered_data = [row for row in filtered_data 
+                       if search_lower in row.get('SURL', '').lower() 
+                       or search_lower in row.get('Link', '').lower()
+                       or search_lower in row.get('File_Name', '').lower()]
+        log_info(f"Search filter applied: '{search_term}' -> {len(filtered_data)} results")
+    
+    # File type filter
+    if 'file_type_filter' in locals() and file_type_filter != "All":
+        filtered_data = [row for row in filtered_data if row.get('File_Type', '') == file_type_filter]
+        log_info(f"File type filter applied: {file_type_filter} -> {len(filtered_data)} results")
+    
+    # File size filter
+    if 'size_range' in locals() and size_range:
+        min_size_mb, max_size_mb = size_range
+        size_filtered = []
+        for row in filtered_data:
+            size_str = row.get('File_Size', '')
+            if size_str:
+                try:
+                    if 'MB' in size_str:
+                        size_mb = float(size_str.replace('MB', '').strip())
+                    elif 'GB' in size_str:
+                        size_mb = float(size_str.replace('GB', '').strip()) * 1024
+                    elif 'KB' in size_str:
+                        size_mb = float(size_str.replace('KB', '').strip()) / 1024
+                    else:
+                        continue
+                    
+                    if min_size_mb <= size_mb <= max_size_mb:
+                        size_filtered.append(row)
+                except:
+                    continue
+            else:
+                # Include files without size info if range includes 0
+                if min_size_mb <= 0:
+                    size_filtered.append(row)
+        
+        filtered_data = size_filtered
+        log_info(f"Size filter applied: {min_size_mb}-{max_size_mb}MB -> {len(filtered_data)} results")
+    
+    # Date range filter
+    if 'date_range' in locals() and date_range and len(date_range) == 2:
+        start_date, end_date = date_range
+        date_filtered = []
+        for row in filtered_data:
+            if row.get('Extracted_At'):
+                try:
+                    row_date = datetime.strptime(row['Extracted_At'], "%Y-%m-%d %H:%M:%S").date()
+                    if start_date <= row_date <= end_date:
+                        date_filtered.append(row)
+                except:
+                    continue
+            else:
+                # Include rows without dates if they match other criteria
+                date_filtered.append(row)
+        
+        filtered_data = date_filtered
+        log_info(f"Date range filter applied: {start_date} to {end_date} -> {len(filtered_data)} results")
+    
+    # Processing date filter
+    if 'processing_date_filter' in locals() and processing_date_filter != "All time":
+        now = datetime.now()
+        if processing_date_filter == "Today":
+            filter_date = now.date()
+        elif processing_date_filter == "This week":
+            filter_date = (now - timedelta(days=7)).date()
+        elif processing_date_filter == "This month":
+            filter_date = (now - timedelta(days=30)).date()
+        else:
+            filter_date = None
+        
+        if filter_date:
+            proc_date_filtered = []
+            for row in filtered_data:
+                if row.get('Processed_At'):
+                    try:
+                        proc_date = datetime.strptime(row['Processed_At'], "%Y-%m-%d %H:%M:%S").date()
+                        if proc_date >= filter_date:
+                            proc_date_filtered.append(row)
+                    except:
+                        continue
+            
+            filtered_data = proc_date_filtered
+            log_info(f"Processing date filter applied: {processing_date_filter} -> {len(filtered_data)} results")
+    
+    # Show filter summary
+    filters_applied = original_count - len(filtered_data)
+    if filters_applied > 0:
+        st.info(f"🎯 Filters applied: Showing {len(filtered_data)} of {original_count} total links ({filters_applied} filtered out)")
+    
+    # Display filtered results
+    st.markdown("---")
+    st.subheader(f"📋 Links Database ({len(filtered_data)} of {len(csv_data)} shown)")
+    
+    if filtered_data:
+        # Create DataFrame for display
+        display_df = pd.DataFrame(filtered_data)
+        
+        # Customize column display
+        if not display_df.empty:
+            # Truncate long URLs for better display
+            display_df['Link_Short'] = display_df['Link'].apply(
+                lambda x: x[:50] + '...' if len(str(x)) > 50 else str(x)
+            )
+            
+            # Add processed file information for better display
+            display_df['File_Info'] = display_df.apply(
+                lambda row: f"{row.get('File_Name', '')[:30]}..." if row.get('File_Name') else 'Not processed',
+                axis=1
+            )
+            
+            # Reorder columns for better display
+            column_order = ['ID', 'SURL', 'Link_Short', 'Domain', 'Status', 'Processed', 'File_Info', 'File_Size', 'Processed_At']
+            display_columns = [col for col in column_order if col in display_df.columns]
+            
+            st.dataframe(
+                display_df[display_columns],
+                width='stretch',
+                hide_index=True,
+                column_config={
+                    "ID": st.column_config.NumberColumn("ID", width="small"),
+                    "SURL": st.column_config.TextColumn("SURL", width="medium"),
+                    "Link_Short": st.column_config.TextColumn("Link", width="large"),
+                    "Domain": st.column_config.TextColumn("Domain", width="medium"),
+                    "Status": st.column_config.TextColumn("Status", width="small"),
+                    "Processed": st.column_config.TextColumn("Processed", width="small"),
+                    "File_Info": st.column_config.TextColumn("File", width="medium"),
+                    "File_Size": st.column_config.TextColumn("Size", width="small"),
+                    "Processed_At": st.column_config.TextColumn("Processed At", width="medium")
+                }
+            )
+            
+            # Add expandable details for processed files
+            st.markdown("---")
+            st.subheader("🔍 Detailed File Information")
+            
+            # Filter for processed files only
+            processed_files = [row for row in filtered_data if row.get('Processed') == 'Yes' and row.get('Status') == 'Processed']
+            
+            if processed_files:
+                selected_file_id = st.selectbox(
+                    "Select a processed file to view details:",
+                    options=[f"ID {row['ID']}: {row.get('File_Name', row.get('SURL', 'Unknown'))}" for row in processed_files],
+                    key="csv_file_selector"
+                )
+                
+                if selected_file_id:
+                    # Extract ID from selection
+                    file_id = int(selected_file_id.split(":")[0].replace("ID ", ""))
+                    selected_file = next((row for row in processed_files if int(row['ID']) == file_id), None)
+                    
+                    if selected_file:
+                        with st.expander(f"📄 {selected_file.get('File_Name', 'Unknown File')}", expanded=True):
+                            col_details1, col_details2 = st.columns(2)
+                            
+                            with col_details1:
+                                st.markdown("**📊 File Information:**")
+                                st.text(f"📄 Name: {selected_file.get('File_Name', 'N/A')}")
+                                st.text(f"📏 Size: {selected_file.get('File_Size', 'N/A')}")
+                                st.text(f"📁 Type: {selected_file.get('File_Type', 'N/A')}")
+                                st.text(f"🌐 Domain: {selected_file.get('Domain', 'N/A')}")
+                                st.text(f"⏰ Processed: {selected_file.get('Processed_At', 'N/A')}")
+                            
+                            with col_details2:
+                                st.markdown("**🔗 Links:**")
+                                if selected_file.get('Download_Link'):
+                                    st.text_input("Direct Download:", value=selected_file['Download_Link'], key=f"detail_dl_{file_id}")
+                                
+                                if selected_file.get('Thumbnail'):
+                                    st.text_input("Thumbnail:", value=selected_file['Thumbnail'], key=f"detail_thumb_{file_id}")
+                                    # Show thumbnail image
+                                    try:
+                                        st.image(selected_file['Thumbnail'], caption="File Thumbnail", width=200)
+                                    except:
+                                        st.caption("Could not load thumbnail image")
+                            
+                            # Raw response data
+                            if selected_file.get('Response_Data'):
+                                st.markdown("**📋 Complete API Response:**")
+                                try:
+                                    response_json = json.loads(selected_file['Response_Data'])
+                                    st.json(response_json)
+                                except:
+                                    st.text_area("Raw Response Data:", value=selected_file['Response_Data'], height=200, key=f"raw_data_{file_id}")
+            else:
+                st.info("ℹ️ No processed files to display details for. Process some links first!")
+        
+        # Bulk actions
+        st.markdown("---")
+        st.subheader("🎯 Bulk Actions")
+        
+        col_action1, col_action2, col_action3, col_action4, col_action5 = st.columns(5)
+        
+        with col_action1:
+            if st.button("📊 Get File Info for All Links", type="primary", key="csv_process_all"):
                         # Extract only the links for processing
                         links_to_process = [row['Link'] for row in filtered_data if row.get('Processed', 'No') == 'No']
                         
@@ -2332,7 +3204,12 @@ Or any other text with TeraBox links...""",
                                         
                                     except Exception as e:
                                         failed_count += 1
-                                        error_result = {'error': str(e), 'original_url': link}
+                                        error_result = {
+                                            'error': str(e), 
+                                            'original_url': link,
+                                            '_api_status_code': 'exception',
+                                            '_api_success': False
+                                        }
                                         results.append(error_result)
                                         # Update CSV with error
                                         update_csv_with_response(link, error_result)
@@ -2434,7 +3311,7 @@ Or any other text with TeraBox links...""",
                                         'size': file_row.get('File_Size', 'Unknown'),
                                         'original_url': file_row.get('Link')
                                     }
-                                    print(f"file_info: {file_info} \n file_row: {file_row}")
+                                    log_info(f"file_info: {file_info} \n file_row: {file_row}")
                                     # Open the link
                                     with st.spinner(f"🌐 Opening {file_name}..."):
                                         open_result = open_direct_file_link(file_info, browser=preferred_browser)
@@ -2478,6 +3355,22 @@ Or any other text with TeraBox links...""",
                             st.info("ℹ️ No processed files with download links found. Process some links first!")
                 
                 with col_action4:
+                    if st.button("🔄 Reset Failed Links", key="csv_reset_failed"):
+                        # Count failed links that can be reset
+                        failed_links = [row for row in filtered_data if row.get('Status') == 'Failed' and row.get('Processed') == 'No']
+                        
+                        if failed_links:
+                            with st.spinner(f"🔄 Resetting {len(failed_links)} failed links to pending..."):
+                                if reset_failed_links_to_pending():
+                                    st.success(f"✅ Reset {len(failed_links)} failed links to pending status!")
+                                    st.balloons()
+                                    st.rerun()
+                                else:
+                                    st.error("❌ Failed to reset links")
+                        else:
+                            st.info("ℹ️ No failed links found to reset")
+                
+                with col_action5:
                     if st.button("🗑️ Clear CSV Database", key="csv_clear_all"):
                         if st.session_state.get('confirm_csv_clear', False):
                             try:

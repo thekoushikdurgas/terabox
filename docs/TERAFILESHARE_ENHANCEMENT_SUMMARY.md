@@ -165,7 +165,7 @@ log_info(f"CSV save operation completed successfully - File: {csv_path}")
 
 **Core Components**:
 
-- ✅ `pages/💳_RapidAPI_Mode.py` - Enhanced text processing and link extraction
+- ✅ `pages/RapidAPI_Mode.py` - Enhanced text processing and link extraction
 - ✅ `utils/terabox_rapidapi.py` - URL normalization and domain support
 - ✅ `utils/config.py` - Domain configuration updates
 - ✅ `app.py` - Main application URL validation

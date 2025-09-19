@@ -293,7 +293,7 @@ log_api_call("rapidapi", "GET", url, status_code=200, duration=1.5)
 - ✅ `utils/cache_manager.py` - Cache operations with performance tracking
 - ✅ `utils/terabox_config.py` - Configuration management with security logging
 - ✅ `utils/browser_utils.py` - Browser operations with cross-platform logging
-- ✅ `pages/💳_RapidAPI_Mode.py` - UI interactions with user action tracking
+- ✅ `pages/RapidAPI_Mode.py` - UI interactions with user action tracking
 - ✅ `pages/⚙️_Settings.py` - Settings management with configuration logging
 - ✅ `app.py` - Main application with comprehensive flow tracking
 

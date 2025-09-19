@@ -165,7 +165,7 @@ The TeraDL configuration system has been completely overhauled to provide a comp
 
 ### User Interface
 - ✅ **Enhanced**: `pages/⚙️_Settings.py` (added RapidAPI tab, updated all tabs)
-- ✅ **Updated**: `pages/💳_RapidAPI_Mode.py` (integrated configuration loading)
+- ✅ **Updated**: `pages/RapidAPI_Mode.py` (integrated configuration loading)
 
 ### Documentation
 - ✅ **Created**: `docs/CONFIGURATION_SYSTEM.md` (comprehensive documentation)

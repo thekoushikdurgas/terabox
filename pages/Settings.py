@@ -233,14 +233,54 @@ with tab3:
     with col1:
         st.subheader("🔑 API Settings")
         
-        # API Key (encrypted in storage)
-        current_key_display = "••••••••••••••••" if rapidapi_config.api_key else ""
-        api_key = st.text_input(
-            "RapidAPI Key:",
-            value=current_key_display,
-            type="password",
-            help="Your RapidAPI key for TeraBox service access"
-        )
+        # Check if multiple keys are configured
+        configured_keys = config_mgr.get_rapidapi_keys()
+        has_multiple_keys = len(configured_keys) > 1
+        
+        if has_multiple_keys:
+            st.info(f"✅ **Multiple API Keys:** {len(configured_keys)} keys configured")
+            
+            with st.expander("🔑 Manage API Keys", expanded=False):
+                st.markdown("**📋 Current API Keys:**")
+                
+                for i, key in enumerate(configured_keys):
+                    col_key, col_remove = st.columns([4, 1])
+                    
+                    with col_key:
+                        masked_key = f"{key[:8]}...{key[-8:]}" if len(key) >= 16 else "***"
+                        st.text_input(f"Key {i+1}:", value=masked_key, disabled=True, key=f"settings_key_{i}")
+                    
+                    with col_remove:
+                        if len(configured_keys) > 1:
+                            if st.button(f"🗑️", key=f"settings_remove_{i}", help=f"Remove key {i+1}"):
+                                if config_mgr.remove_rapidapi_key(key):
+                                    st.success(f"Key {i+1} removed!")
+                                    st.rerun()
+                
+                st.markdown("**➕ Add New Key:**")
+                new_key = st.text_input(
+                    "Additional RapidAPI Key:",
+                    type="password",
+                    key="settings_new_key"
+                )
+                
+                if st.button("➕ Add Key", key="settings_add_key"):
+                    if new_key.strip():
+                        if config_mgr.add_rapidapi_key(new_key.strip()):
+                            st.success("New key added!")
+                            st.rerun()
+            
+            # Primary key for backward compatibility
+            api_key = "••••••••••••••••"  # Don't show actual keys in settings
+        else:
+            # Single key interface (API Key encrypted in storage)
+            current_key_display = "••••••••••••••••" if rapidapi_config.api_key else ""
+            api_key = st.text_input(
+                "RapidAPI Key:",
+                value=current_key_display,
+                type="password",
+                help="Your RapidAPI key for TeraBox service access"
+            )
         
         base_url = st.text_input(
             "Base URL:",
@@ -301,6 +341,41 @@ with tab3:
             help="How long to cache API responses"
         )
     
+    # Multiple Key Rotation Settings
+    st.subheader("🔄 Key Rotation Settings")
+    col5, col6 = st.columns(2)
+    
+    with col5:
+        enable_key_rotation = st.checkbox(
+            "Enable Key Rotation",
+            value=rapidapi_config.enable_key_rotation,
+            help="Automatically rotate between API keys on rate limits"
+        )
+        
+        rate_limit_retry_delay = st.number_input(
+            "Rate Limit Retry Delay (seconds):",
+            min_value=10.0,
+            max_value=3600.0,
+            value=rapidapi_config.rate_limit_retry_delay,
+            step=10.0,
+            help="Wait time when a key is rate limited"
+        )
+    
+    with col6:
+        key_rotation_on_error = st.checkbox(
+            "Rotate on Any Error",
+            value=rapidapi_config.key_rotation_on_error,
+            help="Rotate to next key on any API error"
+        )
+        
+        max_key_retries = st.number_input(
+            "Max Retries per Key:",
+            min_value=1,
+            max_value=10,
+            value=rapidapi_config.max_key_retries,
+            help="Maximum retry attempts per key before rotating"
+        )
+    
     if st.button("💾 Save RapidAPI Settings", type="primary"):
         # Only update API key if it's not the masked display value
         update_kwargs = {
@@ -310,10 +385,15 @@ with tab3:
             'max_retries': max_retries,
             'retry_delay': retry_delay,
             'enable_cache': enable_cache,
-            'cache_ttl_hours': cache_ttl_hours
+            'cache_ttl_hours': cache_ttl_hours,
+            'enable_key_rotation': enable_key_rotation,
+            'rate_limit_retry_delay': rate_limit_retry_delay,
+            'key_rotation_on_error': key_rotation_on_error,
+            'max_key_retries': max_key_retries
         }
         
-        if api_key and api_key != current_key_display:
+        # Only update single API key if not using multiple keys and key changed
+        if not has_multiple_keys and api_key and api_key != current_key_display:
             update_kwargs['api_key'] = api_key
         
         config_mgr.update_rapidapi_config(**update_kwargs)
@@ -340,11 +420,15 @@ with tab3:
                 st.warning("⚠️ No API key configured")
     
     with col6:
-        if st.button("🗑️ Clear API Key"):
-            config_mgr.clear_rapidapi_key()
-            st.success("🗑️ API key cleared!")
-            # API key cleared - using state manager for clean updates
-            StateManager.update_state('rapidapi_key_cleared', True)
+        if st.button("🗑️ Clear All API Keys"):
+            if has_multiple_keys:
+                config_mgr.clear_all_rapidapi_keys()
+                st.success("🗑️ All API keys cleared!")
+            else:
+                config_mgr.clear_rapidapi_key()
+                st.success("🗑️ API key cleared!")
+            # API keys cleared - using state manager for clean updates
+            StateManager.update_state('rapidapi_keys_cleared', True)
     
     # Configuration Status
     st.subheader("📊 Configuration Status")
@@ -942,7 +1026,7 @@ with tab8:
         """)
         
         if st.button("🚀 Go to RapidAPI Mode"):
-            st.switch_page("pages/💳_RapidAPI_Mode.py")
+            st.switch_page("pages/RapidAPI_Mode.py")
 
 # Footer
 st.markdown("---")

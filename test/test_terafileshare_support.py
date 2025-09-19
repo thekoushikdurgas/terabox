@@ -32,7 +32,7 @@ import importlib.util
 import sys
 
 # Load the RapidAPI mode module
-rapidapi_mode_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'pages', '💳_RapidAPI_Mode.py')
+rapidapi_mode_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'pages', 'RapidAPI_Mode.py')
 spec = importlib.util.spec_from_file_location("rapidapi_mode", rapidapi_mode_path)
 rapidapi_mode = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(rapidapi_mode)

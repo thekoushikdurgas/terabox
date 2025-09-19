@@ -58,8 +58,9 @@ from utils.config import log_info, log_error
 
 @dataclass
 class RapidAPIConfig:
-    """Configuration for RapidAPI mode"""
-    api_key: Optional[str] = None
+    """Configuration for RapidAPI mode with multiple API key support"""
+    api_key: Optional[str] = None  # Primary API key (backward compatibility)
+    api_keys: Optional[list] = None  # Multiple API keys for rotation
     base_url: str = "https://terabox-downloader-direct-download-link-generator2.p.rapidapi.com"
     host: str = "terabox-downloader-direct-download-link-generator2.p.rapidapi.com"
     timeout: int = 30
@@ -67,6 +68,18 @@ class RapidAPIConfig:
     retry_delay: float = 2.0
     enable_cache: bool = True
     cache_ttl_hours: int = 24
+    # Multiple API key rotation settings
+    enable_key_rotation: bool = True
+    rate_limit_retry_delay: float = 60.0  # Wait time when rate limited (seconds)
+    key_rotation_on_error: bool = True  # Rotate key on any error
+    max_key_retries: int = 2  # Max retries per key before rotating
+    
+    def __post_init__(self):
+        if self.api_keys is None:
+            self.api_keys = []
+        # If we have a primary api_key but no api_keys list, migrate it
+        if self.api_key and not self.api_keys:
+            self.api_keys = [self.api_key]
 
 @dataclass
 class UnofficialConfig:
@@ -362,6 +375,16 @@ class TeraBoxConfigManager:
                                 if section_name == 'official' and key in ['client_id', 'client_secret', 'private_secret'] and value:
                                     # Decrypt sensitive data for official API
                                     setattr(config_obj, key, self._decrypt_data(value))
+                                elif section_name == 'rapidapi' and key == 'api_key' and value:
+                                    # Decrypt primary RapidAPI key
+                                    setattr(config_obj, key, self._decrypt_data(value))
+                                elif section_name == 'rapidapi' and key == 'api_keys' and value:
+                                    # Decrypt all RapidAPI keys in the list
+                                    decrypted_keys = [
+                                        self._decrypt_data(encrypted_key) if encrypted_key else encrypted_key 
+                                        for encrypted_key in value
+                                    ]
+                                    setattr(config_obj, key, decrypted_keys)
                                 else:
                                     setattr(config_obj, key, value)
             
@@ -478,6 +501,13 @@ class TeraBoxConfigManager:
             if config_data['rapidapi']['api_key']:
                 config_data['rapidapi']['api_key'] = self._encrypt_data(config_data['rapidapi']['api_key'])
             
+            # Encrypt all API keys in the list
+            if config_data['rapidapi']['api_keys']:
+                config_data['rapidapi']['api_keys'] = [
+                    self._encrypt_data(key) if key else key 
+                    for key in config_data['rapidapi']['api_keys']
+                ]
+            
             with open(self.config_file, 'w', encoding='utf-8') as f:
                 json.dump(config_data, f, indent=2)
             
@@ -543,18 +573,64 @@ class TeraBoxConfigManager:
         self.save_config()
     
     def set_rapidapi_key(self, api_key: str):
-        """Set RapidAPI key"""
+        """Set RapidAPI key (primary key for backward compatibility)"""
         self.rapidapi_config.api_key = api_key
+        # Also add to api_keys list if not already present
+        if api_key not in self.rapidapi_config.api_keys:
+            self.rapidapi_config.api_keys.insert(0, api_key)  # Insert at beginning as primary
         self.save_config()
+    
+    def add_rapidapi_key(self, api_key: str):
+        """Add an additional RapidAPI key to the rotation pool"""
+        if api_key and api_key not in self.rapidapi_config.api_keys:
+            self.rapidapi_config.api_keys.append(api_key)
+            # Set as primary if it's the first key
+            if not self.rapidapi_config.api_key:
+                self.rapidapi_config.api_key = api_key
+            self.save_config()
+            return True
+        return False
+    
+    def remove_rapidapi_key(self, api_key: str):
+        """Remove a RapidAPI key from the rotation pool"""
+        if api_key in self.rapidapi_config.api_keys:
+            self.rapidapi_config.api_keys.remove(api_key)
+            # If removing the primary key, set a new one
+            if self.rapidapi_config.api_key == api_key:
+                self.rapidapi_config.api_key = self.rapidapi_config.api_keys[0] if self.rapidapi_config.api_keys else None
+            self.save_config()
+            return True
+        return False
+    
+    def set_rapidapi_keys(self, api_keys: list):
+        """Set multiple RapidAPI keys"""
+        self.rapidapi_config.api_keys = list(api_keys) if api_keys else []
+        # Set primary key to first in list
+        self.rapidapi_config.api_key = self.rapidapi_config.api_keys[0] if self.rapidapi_config.api_keys else None
+        self.save_config()
+    
+    def get_rapidapi_keys(self) -> list:
+        """Get all configured RapidAPI keys"""
+        return list(self.rapidapi_config.api_keys) if self.rapidapi_config.api_keys else []
     
     def clear_rapidapi_key(self):
         """Clear RapidAPI key"""
         self.rapidapi_config.api_key = None
         self.save_config()
     
+    def clear_all_rapidapi_keys(self):
+        """Clear all RapidAPI keys"""
+        self.rapidapi_config.api_key = None
+        self.rapidapi_config.api_keys = []
+        self.save_config()
+    
     def has_rapidapi_key(self) -> bool:
         """Check if RapidAPI key is configured"""
-        return bool(self.rapidapi_config.api_key)
+        return bool(self.rapidapi_config.api_key) or bool(self.rapidapi_config.api_keys)
+    
+    def has_multiple_rapidapi_keys(self) -> bool:
+        """Check if multiple RapidAPI keys are configured"""
+        return len(self.rapidapi_config.api_keys) > 1
     
     def clear_official_credentials(self):
         """Clear official API credentials"""
@@ -653,7 +729,13 @@ class TeraBoxConfigManager:
                 'retry_delay': self.rapidapi_config.retry_delay,
                 'enable_cache': self.rapidapi_config.enable_cache,
                 'cache_ttl_hours': self.rapidapi_config.cache_ttl_hours,
-                'has_api_key': bool(self.rapidapi_config.api_key)
+                'enable_key_rotation': self.rapidapi_config.enable_key_rotation,
+                'rate_limit_retry_delay': self.rapidapi_config.rate_limit_retry_delay,
+                'key_rotation_on_error': self.rapidapi_config.key_rotation_on_error,
+                'max_key_retries': self.rapidapi_config.max_key_retries,
+                'has_api_key': bool(self.rapidapi_config.api_key),
+                'total_api_keys': len(self.rapidapi_config.api_keys) if self.rapidapi_config.api_keys else 0,
+                'has_multiple_keys': len(self.rapidapi_config.api_keys) > 1 if self.rapidapi_config.api_keys else False
             },
             'unofficial': asdict(self.unofficial_config),
             'official': {
