@@ -72,7 +72,7 @@ Streamlit Multi-Page App
 pages/
 ├── 🔑_API_Mode.py          # Official API configuration
 ├── 🍪_Cookie_Mode.py       # Cookie management
-├── 💳_RapidAPI_Mode.py     # RapidAPI configuration
+├── RapidAPI_Mode.py     # RapidAPI configuration
 ├── 📊_Mode_Comparison.py   # Compare all modes
 ├── 📁_File_Manager.py      # File management
 ├── ⚙️_Settings.py          # Application settings

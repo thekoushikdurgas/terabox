@@ -104,7 +104,7 @@ def check_state_manager_usage() -> bool:
     # Check if state manager is imported in main files
     main_files = [
         'pages/⚙️_Settings.py',
-        'pages/💳_RapidAPI_Mode.py', 
+        'pages/RapidAPI_Mode.py', 
         'pages/🍪_Cookie_Mode.py',
         'app.py'
     ]

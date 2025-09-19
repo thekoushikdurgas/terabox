@@ -40,6 +40,7 @@ from typing import Dict, List, Any, Optional
 from utils.config import log_error, log_info, get_default_download_path
 from utils.cache_manager import TeraBoxCacheManager
 from utils.terabox_config import get_config_manager
+from utils.rapidapi_key_manager import RapidAPIKeyManager
 
 class TeraBoxRapidAPI:
     """
@@ -71,21 +72,22 @@ class TeraBoxRapidAPI:
     
     def __init__(self, rapidapi_key: str = None, enable_cache: bool = None, cache_ttl_hours: int = None):
         """
-        Initialize RapidAPI client with configuration and caching
+        Initialize RapidAPI client with multiple key support and caching
         
         Args:
-            rapidapi_key: RapidAPI key for authentication (overrides config)
+            rapidapi_key: Single RapidAPI key for authentication (backward compatibility)
             enable_cache: Enable response caching (overrides config)
             cache_ttl_hours: Cache TTL in hours (overrides config)
             
         Initialization Flow:
         1. Load configuration from centralized config manager
-        2. Apply parameter overrides if provided
-        3. Initialize HTTP session with RapidAPI headers
-        4. Set up cache manager if caching is enabled
-        5. Validate configuration and log initialization status
+        2. Initialize multiple API key manager for rotation
+        3. Apply parameter overrides if provided
+        4. Initialize HTTP session with RapidAPI headers
+        5. Set up cache manager if caching is enabled
+        6. Validate configuration and log initialization status
         """
-        log_info("Initializing TeraBoxRapidAPI client")
+        log_info("Initializing TeraBoxRapidAPI client with multiple key support")
         
         # Configuration Loading
         # Purpose: Load settings from centralized configuration system
@@ -96,15 +98,45 @@ class TeraBoxRapidAPI:
         
         log_info("Configuration managers loaded successfully")
         
-        # API Key Configuration
-        # Strategy: Parameter override takes precedence over config file
-        # Security: Handle empty strings vs None properly for security
+        # Multiple API Key Setup
+        # Purpose: Initialize key manager for automatic rotation and rate limit handling
+        # Strategy: Use all configured keys or single provided key
+        api_keys = []
+        
         if rapidapi_key is not None:
-            self.rapidapi_key = rapidapi_key
-            log_info("Using API key from parameter override")
+            # Single key provided - use it as primary
+            api_keys = [rapidapi_key]
+            log_info("Using single API key from parameter override")
         else:
-            self.rapidapi_key = self.rapidapi_config.api_key
-            log_info("Using API key from configuration file")
+            # Use all configured keys from config
+            api_keys = self.config_manager.get_rapidapi_keys()
+            if not api_keys and self.rapidapi_config.api_key:
+                # Fallback to single key for backward compatibility
+                api_keys = [self.rapidapi_config.api_key]
+            log_info(f"Using {len(api_keys)} API keys from configuration")
+        
+        # Initialize Key Manager
+        # Purpose: Handle multiple keys with rotation and rate limit detection
+        if api_keys:
+            key_manager_config = {
+                'enable_rotation': self.rapidapi_config.enable_key_rotation,
+                'rate_limit_retry_delay': self.rapidapi_config.rate_limit_retry_delay,
+                'key_rotation_on_error': self.rapidapi_config.key_rotation_on_error,
+                'max_key_retries': self.rapidapi_config.max_key_retries
+            }
+            
+            self.key_manager = RapidAPIKeyManager(api_keys, key_manager_config)
+            log_info(f"Key manager initialized with {len(api_keys)} keys")
+            
+            # Get current key for backward compatibility
+            current_key_info = self.key_manager.get_next_key()
+            self.rapidapi_key = current_key_info[1] if current_key_info else None
+            self.current_key_id = current_key_info[0] if current_key_info else None
+        else:
+            self.key_manager = None
+            self.rapidapi_key = None
+            self.current_key_id = None
+            log_info("No API keys configured - key manager not initialized")
         
         # Service Configuration
         # Purpose: Set up RapidAPI service endpoints and timeouts
@@ -160,6 +192,62 @@ class TeraBoxRapidAPI:
             log_info("RapidAPI client initialization complete with caching enabled")
         else:
             log_info("RapidAPI client initialization complete without caching")
+    
+    def get_key_manager_stats(self) -> Dict[str, Any]:
+        """Get comprehensive key manager statistics"""
+        if not self.key_manager:
+            return {'error': 'Key manager not initialized'}
+        
+        return self.key_manager.get_manager_stats()
+    
+    def get_all_keys_status(self) -> Dict[str, Dict[str, Any]]:
+        """Get status for all API keys"""
+        if not self.key_manager:
+            return {'error': 'Key manager not initialized'}
+        
+        return self.key_manager.get_all_keys_status()
+    
+    def reset_all_keys(self) -> bool:
+        """Reset all keys to healthy state"""
+        if not self.key_manager:
+            return False
+        
+        self.key_manager.reset_all_keys()
+        log_info("All API keys reset to healthy state")
+        return True
+    
+    def add_api_key(self, api_key: str) -> bool:
+        """Add a new API key to the rotation pool"""
+        if not self.key_manager:
+            return False
+        
+        key_id = self.key_manager.add_key(api_key)
+        log_info(f"Added new API key: {key_id}")
+        
+        # Update config manager
+        self.config_manager.add_rapidapi_key(api_key)
+        return True
+    
+    def remove_api_key(self, key_id: str) -> bool:
+        """Remove an API key from the rotation pool"""
+        if not self.key_manager:
+            return False
+        
+        # Get the key before removing it
+        key_status = self.key_manager.get_key_status(key_id)
+        if not key_status:
+            return False
+        
+        # Remove from key manager
+        if self.key_manager.remove_key(key_id):
+            log_info(f"Removed API key: {key_id}")
+            return True
+        
+        return False
+    
+    def has_multiple_keys(self) -> bool:
+        """Check if multiple API keys are configured"""
+        return self.key_manager and len(self.key_manager.keys) > 1
     
     def set_api_key(self, api_key: str):
         """
@@ -473,7 +561,7 @@ class TeraBoxRapidAPI:
     
     def get_file_info(self, terabox_url: str, force_refresh: bool = False) -> Dict[str, Any]:
         """
-        Get file information from TeraBox URL using RapidAPI service with caching
+        Get file information from TeraBox URL using RapidAPI service with multiple key rotation
         
         Args:
             terabox_url: TeraBox URL to process
@@ -481,8 +569,8 @@ class TeraBoxRapidAPI:
             
         Returns: direct_link, file_name, size, sizebytes, thumb, or error
         """
-        if not self.rapidapi_key:
-            return {'error': 'No RapidAPI key provided. Please configure your API key.'}
+        if not self.key_manager or not self.rapidapi_key:
+            return {'error': 'No RapidAPI keys configured. Please configure your API keys.'}
         
         try:
             log_info(f"Getting file info via RapidAPI for: {terabox_url}")
@@ -498,78 +586,150 @@ class TeraBoxRapidAPI:
             normalized_url = self._normalize_terabox_url(terabox_url)
             log_info(f"Normalized URL: {normalized_url}")
             
-            # Make API request with enhanced headers
-            headers = {
-                'X-RapidAPI-Key': self.rapidapi_key,
-                'X-RapidAPI-Host': 'terabox-downloader-direct-download-link-generator2.p.rapidapi.com',
-                'User-Agent': 'TeraDL-RapidAPI-Client/1.0',
-                'Accept': 'application/json'
-            }
-            
-            response = self.session.get(
-                f"{self.base_url}/url",
-                params={'url': normalized_url},
-                headers=headers,
-                timeout=30
-            )
-            
-            log_info(f"RapidAPI response status: {response.status_code}")
-            
-            # Handle different response codes
-            if response.status_code == 200:
-                try:
-                    data = response.json()
-                    log_info(f"RapidAPI response data type: {type(data)}")
-                    
-                    # Validate and process response
-                    result = self._process_api_response(data)
-                    if result:
-                        log_info(f"Successfully extracted file info: {result['file_name']}")
-                        
-                        # Save to cache if caching is enabled
-                        if self.enable_cache and self.cache_manager:
-                            cache_saved = self.cache_manager.save_response_to_cache(terabox_url, result)
-                            if cache_saved:
-                                log_info(f"Response cached for future requests")
-                            else:
-                                log_info(f"Failed to cache response")
-                        
-                        return result
-                    else:
-                        return {'error': 'No valid file data found in response'}
-                        
-                except ValueError as e:
-                    log_error(e, "get_file_info - JSON decode")
-                    return {'error': f'Invalid JSON response: {str(e)}'}
-            
-            elif response.status_code == 401:
-                return {'error': 'Invalid RapidAPI key. Please check your API key.'}
-            elif response.status_code == 403:
-                return {'error': 'RapidAPI access denied. Check your subscription.'}
-            elif response.status_code == 429:
-                return {'error': 'Rate limit exceeded. Please wait before making more requests.'}
-            elif response.status_code == 400:
-                return {'error': 'Invalid TeraBox URL format.'}
-            elif response.status_code == 404:
-                return {'error': 'File not found or URL expired.'}
-            else:
-                # Try to get error message from response
-                try:
-                    error_data = response.json()
-                    error_msg = error_data.get('message', f'HTTP {response.status_code}')
-                except:
-                    error_msg = f'HTTP {response.status_code}'
-                return {'error': f'API error: {error_msg}'}
+            # Try API request with key rotation
+            max_attempts = len(self.key_manager.keys) * self.rapidapi_config.max_key_retries
+            for attempt in range(max_attempts):
+                # Get next available key
+                key_info = self.key_manager.get_next_key()
+                if not key_info:
+                    return {
+                        'error': 'No available API keys. All keys are rate limited or failed.',
+                        '_api_status_code': 'no_keys',
+                        '_api_success': False
+                    }
                 
-        except requests.exceptions.Timeout:
-            log_error(Exception("Timeout"), "get_file_info - timeout")
-            return {'error': 'Request timeout. Please try again.'}
-        except requests.exceptions.RequestException as e:
-            log_error(e, "get_file_info - network error")
-            return {'error': f'Network error: {str(e)}'}
+                current_key_id, current_key = key_info
+                log_info(f"Attempt {attempt + 1}/{max_attempts} using key: {current_key_id}")
+                
+                # Make API request with current key
+                headers = {
+                    'X-RapidAPI-Key': current_key,
+                    'X-RapidAPI-Host': 'terabox-downloader-direct-download-link-generator2.p.rapidapi.com',
+                    'User-Agent': 'TeraDL-RapidAPI-Client/1.0',
+                    'Accept': 'application/json'
+                }
+                
+                request_start_time = time.time()
+                
+                try:
+                    response = self.session.get(
+                        f"{self.base_url}/url",
+                        params={'url': normalized_url},
+                        headers=headers,
+                        timeout=30
+                    )
+                    
+                    response_time = time.time() - request_start_time
+                    log_info(f"RapidAPI response status: {response.status_code} (key: {current_key_id}, time: {response_time:.2f}s)")
+                    
+                    # Handle successful response
+                    if response.status_code == 200:
+                        try:
+                            data = response.json()
+                            log_info(f"RapidAPI response data type: {type(data)}")
+                            
+                            # Validate and process response
+                            result = self._process_api_response(data)
+                            if result:
+                                log_info(f"Successfully extracted file info: {result['file_name']}")
+                                
+                                # Mark key as successful
+                                self.key_manager.mark_request_success(current_key_id, response_time)
+                                
+                                # Add status code information for CSV processing
+                                result['_api_status_code'] = 200
+                                result['_api_success'] = True
+                                result['_used_key_id'] = current_key_id
+                                
+                                # Save to cache if caching is enabled
+                                if self.enable_cache and self.cache_manager:
+                                    cache_saved = self.cache_manager.save_response_to_cache(terabox_url, result)
+                                    if cache_saved:
+                                        log_info(f"Response cached for future requests")
+                                    else:
+                                        log_info(f"Failed to cache response")
+                                
+                                return result
+                            else:
+                                # Mark as success but no valid data
+                                self.key_manager.mark_request_success(current_key_id, response_time)
+                                return {
+                                    'error': 'No valid file data found in response',
+                                    '_api_status_code': 200,
+                                    '_api_success': False,
+                                    '_used_key_id': current_key_id
+                                }
+                                
+                        except ValueError as e:
+                            log_error(e, "get_file_info - JSON decode")
+                            self.key_manager.mark_request_failure(current_key_id, f"JSON decode error: {str(e)}")
+                            return {
+                                'error': f'Invalid JSON response: {str(e)}',
+                                '_api_status_code': 200,
+                                '_api_success': False,
+                                '_used_key_id': current_key_id
+                            }
+                    
+                    # Handle rate limiting - try next key
+                    elif response.status_code == 429:
+                        error_msg = 'Rate limit exceeded. Please wait before making more requests.'
+                        log_info(f"Key {current_key_id} rate limited - rotating to next key")
+                        self.key_manager.mark_request_failure(current_key_id, error_msg, 429)
+                        continue  # Try next key
+                    
+                    # Handle authentication errors - try next key
+                    elif response.status_code in [401, 403]:
+                        error_msg = 'Invalid RapidAPI key or access denied'
+                        log_info(f"Key {current_key_id} authentication failed - rotating to next key")
+                        self.key_manager.mark_request_failure(current_key_id, error_msg, response.status_code)
+                        continue  # Try next key
+                    
+                    # Handle other errors
+                    else:
+                        try:
+                            error_data = response.json()
+                            error_msg = error_data.get('message', f'HTTP {response.status_code}')
+                        except:
+                            error_msg = f'HTTP {response.status_code}'
+                        
+                        self.key_manager.mark_request_failure(current_key_id, error_msg, response.status_code)
+                        
+                        # For 400, 404 errors, don't retry with other keys (URL issue)
+                        if response.status_code in [400, 404]:
+                            return {
+                                'error': f'API error: {error_msg}',
+                                '_api_status_code': response.status_code,
+                                '_api_success': False,
+                                '_used_key_id': current_key_id
+                            }
+                        
+                        continue  # Try next key for other errors
+                
+                except requests.exceptions.Timeout:
+                    log_error(Exception("Timeout"), f"get_file_info - timeout with key {current_key_id}")
+                    self.key_manager.mark_request_failure(current_key_id, "Request timeout")
+                    continue  # Try next key
+                
+                except requests.exceptions.RequestException as e:
+                    log_error(e, f"get_file_info - network error with key {current_key_id}")
+                    self.key_manager.mark_request_failure(current_key_id, f"Network error: {str(e)}")
+                    continue  # Try next key
+            
+            # All keys exhausted
+            log_error(Exception("All API keys exhausted"), "get_file_info")
+            return {
+                'error': 'All API keys failed or are rate limited. Please wait and try again.',
+                '_api_status_code': 'all_keys_failed',
+                '_api_success': False
+            }
+                
         except Exception as e:
             log_error(e, "get_file_info")
-            return {'error': f'Failed to get file info: {str(e)}'}
+            return {
+                'error': f'Failed to get file info: {str(e)}',
+                '_api_status_code': 'exception',
+                '_api_success': False
+            }
     
     def get_multiple_files_info(self, urls: List[str]) -> List[Dict[str, Any]]:
         """Get file information for multiple TeraBox URLs"""

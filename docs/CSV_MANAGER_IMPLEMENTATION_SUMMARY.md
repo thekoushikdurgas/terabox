@@ -70,7 +70,7 @@ Added three new utility functions to handle CSV operations:
 ## 📁 File Structure
 
 ### Modified Files:
-- `pages/💳_RapidAPI_Mode.py`: Added CSV functionality and new tab
+- `pages/RapidAPI_Mode.py`: Added CSV functionality and new tab
 
 ### CSV Database:
 - `utils/terebox.csv`: Persistent storage for extracted links

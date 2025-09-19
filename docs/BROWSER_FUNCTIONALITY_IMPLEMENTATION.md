@@ -16,7 +16,7 @@ This document describes the implementation of "Open Direct File Link" functional
 
 ### Enhanced Pages
 
-2. **💳 RapidAPI Mode (`pages/💳_RapidAPI_Mode.py`)**
+2. **💳 RapidAPI Mode (`pages/RapidAPI_Mode.py`)**
    - Added "📥 Open Direct File Link" button in single file processing
    - Added "🌐 Open Link" buttons in bulk file processing
    - Added browser selection section with expandable settings
@@ -130,7 +130,7 @@ terabox/
 ├── utils/
 │   └── browser_utils.py          # Core browser management
 ├── pages/
-│   ├── 💳_RapidAPI_Mode.py      # RapidAPI integration
+│   ├── RapidAPI_Mode.py      # RapidAPI integration
 │   ├── 🍪_Cookie_Mode.py        # Cookie mode integration  
 │   ├── 📁_File_Manager.py       # Official API integration
 │   └── ⚙️_Settings.py          # Browser settings

@@ -138,7 +138,7 @@ Core Files:
 UI Pages:
 - pages/🔑_API_Mode.py     # Official API configuration
 - pages/🍪_Cookie_Mode.py  # Cookie management
-- pages/💳_RapidAPI_Mode.py # RapidAPI configuration  
+- pages/RapidAPI_Mode.py # RapidAPI configuration  
 - pages/📊_Mode_Comparison.py # Compare all modes
 - pages/📁_File_Manager.py # File management (Official API)
 - pages/⚙️_Settings.py     # Application settings

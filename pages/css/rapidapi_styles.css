@@ -1,0 +1,766 @@
+/* 
+RapidAPI Mode Styles
+Enhanced CSS styles for RapidAPI components with modern design and responsive layout
+
+Style Categories:
+- Layout and Structure
+- Color Scheme and Theming
+- Interactive Elements
+- Progress Indicators
+- Status Indicators
+- Responsive Design
+- Animations and Transitions
+*/
+
+/* ============================================================================
+   LAYOUT AND STRUCTURE STYLES
+   ============================================================================ */
+
+/* Main container styling */
+.rapidapi-container {
+    padding: 1rem;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+
+/* Section headers with enhanced styling */
+.rapidapi-section-header {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #3498db;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Card-based layout for components */
+.rapidapi-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e1e8ed;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.rapidapi-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+/* Grid layout for metrics and statistics */
+.rapidapi-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.rapidapi-metric-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    border-left: 4px solid #3498db;
+}
+
+/* ============================================================================
+   COLOR SCHEME AND THEMING
+   ============================================================================ */
+
+/* Primary color scheme */
+:root {
+    --rapidapi-primary: #3498db;
+    --rapidapi-secondary: #2ecc71;
+    --rapidapi-accent: #e74c3c;
+    --rapidapi-warning: #f39c12;
+    --rapidapi-info: #17a2b8;
+    --rapidapi-light: #ecf0f1;
+    --rapidapi-dark: #2c3e50;
+    --rapidapi-success: #27ae60;
+    --rapidapi-error: #e74c3c;
+}
+
+/* Status color indicators */
+.status-success {
+    color: var(--rapidapi-success);
+    background-color: rgba(39, 174, 96, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.status-warning {
+    color: var(--rapidapi-warning);
+    background-color: rgba(243, 156, 18, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.status-error {
+    color: var(--rapidapi-error);
+    background-color: rgba(231, 76, 60, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.status-info {
+    color: var(--rapidapi-info);
+    background-color: rgba(23, 162, 184, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+/* ============================================================================
+   INTERACTIVE ELEMENTS
+   ============================================================================ */
+
+/* Enhanced button styling */
+.rapidapi-btn-primary {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
+}
+
+.rapidapi-btn-primary:hover {
+    background: linear-gradient(135deg, #2980b9, #21618c);
+    box-shadow: 0 4px 8px rgba(52, 152, 219, 0.4);
+    transform: translateY(-1px);
+}
+
+.rapidapi-btn-secondary {
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.rapidapi-btn-secondary:hover {
+    background: linear-gradient(135deg, #7f8c8d, #6c7b7d);
+    transform: translateY(-1px);
+}
+
+/* Input field enhancements */
+.rapidapi-input-enhanced {
+    border: 2px solid #bdc3c7;
+    border-radius: 6px;
+    padding: 0.75rem;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+    width: 100%;
+}
+
+.rapidapi-input-enhanced:focus {
+    border-color: var(--rapidapi-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+/* ============================================================================
+   PROGRESS INDICATORS
+   ============================================================================ */
+
+/* Enhanced progress bar styling */
+.rapidapi-progress-container {
+    background: #ecf0f1;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 1rem 0;
+    height: 20px;
+    position: relative;
+}
+
+.rapidapi-progress-bar {
+    background: linear-gradient(90deg, #3498db, #2ecc71);
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.rapidapi-progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* Progress text styling */
+.rapidapi-progress-text {
+    font-size: 0.9rem;
+    color: #34495e;
+    margin: 0.5rem 0;
+    font-weight: 500;
+}
+
+.rapidapi-speed-text {
+    font-size: 0.8rem;
+    color: #7f8c8d;
+    font-family: 'Courier New', monospace;
+}
+
+/* ============================================================================
+   STATUS INDICATORS
+   ============================================================================ */
+
+/* API key status indicators */
+.api-key-valid {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-block;
+    margin: 0.5rem 0;
+}
+
+.api-key-invalid {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-block;
+    margin: 0.5rem 0;
+}
+
+.api-key-warning {
+    background: linear-gradient(135deg, #f39c12, #d68910);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-block;
+    margin: 0.5rem 0;
+}
+
+/* Processing status badges */
+.processing-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.processing-badge.pending {
+    background: rgba(243, 156, 18, 0.1);
+    color: #f39c12;
+    border: 1px solid rgba(243, 156, 18, 0.3);
+}
+
+.processing-badge.success {
+    background: rgba(39, 174, 96, 0.1);
+    color: #27ae60;
+    border: 1px solid rgba(39, 174, 96, 0.3);
+}
+
+.processing-badge.failed {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+/* ============================================================================
+   DATA VISUALIZATION STYLES
+   ============================================================================ */
+
+/* Table enhancements */
+.rapidapi-table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1rem 0;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.rapidapi-table th {
+    background: linear-gradient(135deg, #34495e, #2c3e50);
+    color: white;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+}
+
+.rapidapi-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #ecf0f1;
+    transition: background-color 0.2s ease;
+}
+
+.rapidapi-table tr:hover td {
+    background-color: #f8f9fa;
+}
+
+/* Chart container styling */
+.rapidapi-chart-container {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 1rem 0;
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+/* Mobile-first responsive design */
+@media (max-width: 768px) {
+    .rapidapi-container {
+        padding: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .rapidapi-card {
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .rapidapi-metrics-grid {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .rapidapi-section-header {
+        font-size: 1.25rem;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .rapidapi-metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1025px) {
+    .rapidapi-metrics-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ============================================================================
+   ANIMATIONS AND TRANSITIONS
+   ============================================================================ */
+
+/* Fade-in animation for components */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.rapidapi-fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Pulse animation for loading states */
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.rapidapi-loading {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Slide-in animation for notifications */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.rapidapi-notification {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* ============================================================================
+   UTILITY CLASSES
+   ============================================================================ */
+
+/* Spacing utilities */
+.rapidapi-mb-1 { margin-bottom: 0.5rem; }
+.rapidapi-mb-2 { margin-bottom: 1rem; }
+.rapidapi-mb-3 { margin-bottom: 1.5rem; }
+.rapidapi-mb-4 { margin-bottom: 2rem; }
+
+.rapidapi-mt-1 { margin-top: 0.5rem; }
+.rapidapi-mt-2 { margin-top: 1rem; }
+.rapidapi-mt-3 { margin-top: 1.5rem; }
+.rapidapi-mt-4 { margin-top: 2rem; }
+
+.rapidapi-p-1 { padding: 0.5rem; }
+.rapidapi-p-2 { padding: 1rem; }
+.rapidapi-p-3 { padding: 1.5rem; }
+.rapidapi-p-4 { padding: 2rem; }
+
+/* Text utilities */
+.rapidapi-text-center { text-align: center; }
+.rapidapi-text-left { text-align: left; }
+.rapidapi-text-right { text-align: right; }
+
+.rapidapi-text-bold { font-weight: 600; }
+.rapidapi-text-semibold { font-weight: 500; }
+.rapidapi-text-light { font-weight: 300; }
+
+.rapidapi-text-small { font-size: 0.875rem; }
+.rapidapi-text-large { font-size: 1.125rem; }
+.rapidapi-text-xlarge { font-size: 1.25rem; }
+
+/* Color utilities */
+.rapidapi-text-primary { color: var(--rapidapi-primary); }
+.rapidapi-text-secondary { color: var(--rapidapi-secondary); }
+.rapidapi-text-success { color: var(--rapidapi-success); }
+.rapidapi-text-warning { color: var(--rapidapi-warning); }
+.rapidapi-text-error { color: var(--rapidapi-error); }
+.rapidapi-text-muted { color: #6c757d; }
+
+/* Background utilities */
+.rapidapi-bg-light { background-color: var(--rapidapi-light); }
+.rapidapi-bg-primary { background-color: var(--rapidapi-primary); }
+.rapidapi-bg-success { background-color: var(--rapidapi-success); }
+.rapidapi-bg-warning { background-color: var(--rapidapi-warning); }
+.rapidapi-bg-error { background-color: var(--rapidapi-error); }
+
+/* ============================================================================
+   COMPONENT-SPECIFIC STYLES
+   ============================================================================ */
+
+/* API Key Management Styles */
+.rapidapi-key-input {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    background: #f8f9fa;
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.rapidapi-key-input:focus {
+    border-color: var(--rapidapi-primary);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.rapidapi-key-valid {
+    border-color: var(--rapidapi-success);
+    background: rgba(39, 174, 96, 0.05);
+}
+
+.rapidapi-key-invalid {
+    border-color: var(--rapidapi-error);
+    background: rgba(231, 76, 60, 0.05);
+}
+
+/* File Information Display Styles */
+.rapidapi-file-card {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    border-left: 4px solid var(--rapidapi-primary);
+    position: relative;
+    overflow: hidden;
+}
+
+.rapidapi-file-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--rapidapi-primary), var(--rapidapi-secondary));
+}
+
+.rapidapi-file-thumbnail {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease;
+}
+
+.rapidapi-file-thumbnail:hover {
+    transform: scale(1.05);
+}
+
+/* Download Progress Styles */
+.rapidapi-download-progress {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin: 1rem 0;
+    border: 1px solid #e1e8ed;
+}
+
+.rapidapi-speed-indicator {
+    background: linear-gradient(135deg, #1abc9c, #16a085);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    display: inline-block;
+    margin: 0.5rem 0;
+}
+
+.rapidapi-eta-indicator {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    display: inline-block;
+    margin: 0.5rem 0;
+}
+
+/* ============================================================================
+   CSV MANAGER STYLES
+   ============================================================================ */
+
+/* CSV data table enhancements */
+.rapidapi-csv-table {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.rapidapi-filter-panel {
+    background: linear-gradient(135deg, #ecf0f1, #d5dbdb);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    border: 1px solid #bdc3c7;
+}
+
+.rapidapi-quick-filter {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    margin: 0.25rem;
+    border-radius: 20px;
+    background: white;
+    border: 2px solid #bdc3c7;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.rapidapi-quick-filter:hover {
+    border-color: var(--rapidapi-primary);
+    background: rgba(52, 152, 219, 0.1);
+    transform: translateY(-1px);
+}
+
+.rapidapi-quick-filter.active {
+    background: var(--rapidapi-primary);
+    color: white;
+    border-color: var(--rapidapi-primary);
+}
+
+/* ============================================================================
+   ANALYTICS DASHBOARD STYLES
+   ============================================================================ */
+
+/* Analytics card styling */
+.rapidapi-analytics-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin: 1rem 0;
+    border-top: 4px solid var(--rapidapi-primary);
+}
+
+.rapidapi-metric-large {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--rapidapi-dark);
+    margin-bottom: 0.5rem;
+}
+
+.rapidapi-metric-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+}
+
+.rapidapi-metric-delta {
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-top: 0.25rem;
+}
+
+.rapidapi-metric-delta.positive {
+    color: var(--rapidapi-success);
+}
+
+.rapidapi-metric-delta.negative {
+    color: var(--rapidapi-error);
+}
+
+/* ============================================================================
+   CACHE MANAGER STYLES
+   ============================================================================ */
+
+/* Cache status indicators */
+.rapidapi-cache-enabled {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    margin: 1rem 0;
+}
+
+.rapidapi-cache-disabled {
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    margin: 1rem 0;
+}
+
+.rapidapi-cache-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.rapidapi-cache-stat {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    border-left: 3px solid var(--rapidapi-primary);
+}
+
+/* ============================================================================
+   DARK MODE SUPPORT
+   ============================================================================ */
+
+/* Dark mode styles */
+@media (prefers-color-scheme: dark) {
+    .rapidapi-card {
+        background: #2c3e50;
+        border-color: #34495e;
+        color: #ecf0f1;
+    }
+    
+    .rapidapi-file-card {
+        background: linear-gradient(135deg, #2c3e50, #34495e);
+        color: #ecf0f1;
+    }
+    
+    .rapidapi-filter-panel {
+        background: linear-gradient(135deg, #2c3e50, #34495e);
+        border-color: #4a5f7a;
+        color: #ecf0f1;
+    }
+    
+    .rapidapi-analytics-card {
+        background: #2c3e50;
+        color: #ecf0f1;
+        border-color: #34495e;
+    }
+    
+    .rapidapi-metric-large {
+        color: #ecf0f1;
+    }
+}
+
+/* ============================================================================
+   ACCESSIBILITY ENHANCEMENTS
+   ============================================================================ */
+
+/* Focus indicators for accessibility */
+.rapidapi-focusable:focus {
+    outline: 2px solid var(--rapidapi-primary);
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .rapidapi-card {
+        border-width: 2px;
+        border-color: #000;
+    }
+    
+    .rapidapi-btn-primary {
+        border: 2px solid #000;
+    }
+    
+    .rapidapi-progress-bar {
+        background: #000;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

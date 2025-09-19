@@ -175,7 +175,7 @@ d:\durgas\terabox\
 │   ├── teraboxlink_1aBcDeFgHiJkL.json
 │   └── teraboxlink_*.json
 ├── pages\
-│   ├── 💳_RapidAPI_Mode.py           # Enhanced with cache UI
+│   ├── RapidAPI_Mode.py           # Enhanced with cache UI
 │   └── ⚙️_Settings.py               # Cache management tab
 └── docs\
     └── RAPIDAPI_CACHE_IMPLEMENTATION.md

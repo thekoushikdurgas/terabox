@@ -18,7 +18,7 @@ Removed all 35 `st.rerun()` calls from main application files:
 
 #### Files Fixed:
 - ✅ **pages/⚙️_Settings.py** - 11 calls removed
-- ✅ **pages/💳_RapidAPI_Mode.py** - 4 calls removed  
+- ✅ **pages/RapidAPI_Mode.py** - 4 calls removed  
 - ✅ **pages/🍪_Cookie_Mode.py** - 2 calls removed
 - ✅ **pages/📁_File_Manager.py** - 4 calls removed
 - ✅ **pages/🔑_API_Mode.py** - 4 calls removed
@@ -110,7 +110,7 @@ Total st.rerun() calls found: 0
 - Fixed save operations for all settings sections
 - Improved credential management
 
-### RapidAPI Mode (💳_RapidAPI_Mode.py)  
+### RapidAPI Mode (RapidAPI_Mode.py)  
 - Removed 4 `st.rerun()` calls
 - Enhanced API key validation flow
 - Fixed text processor clearing
