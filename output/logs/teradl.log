@@ -277,3 +277,50 @@
 2025-09-19 10:41:51,141 - utils.config - INFO - RapidAPI client initialized with caching enabled
 2025-09-19 10:41:51,144 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
 2025-09-19 10:41:51,145 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:42:53,103 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:42:53,104 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:42:56,181 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:42:56,181 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:42:56,188 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:42:56,189 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:42:56,189 - utils.config - INFO - API key format validation passed: API key format is valid
+2025-09-19 10:42:58,055 - utils.config - INFO - API key format validation passed: API key format is valid
+2025-09-19 10:43:08,504 - utils.config - INFO - API key format validation passed: API key format is valid
+2025-09-19 10:43:08,728 - utils.config - INFO - API key format validation passed: API key format is valid
+2025-09-19 10:43:10,692 - utils.config - INFO - API key format validation passed: API key format is valid
+2025-09-19 10:43:10,757 - utils.config - INFO - Getting file info via RapidAPI for: https://1024terabox.com/s/1bEQ7FfUlCoeVXeDr6BTBxQ
+2025-09-19 10:43:10,758 - utils.config - INFO - Extracted surl: 1bEQ7FfUlCoeVXeDr6BTBxQ from URL: https://1024terabox.com/s/1bEQ7FfUlCoeVXeDr6BTBxQ
+2025-09-19 10:43:10,837 - utils.config - INFO - Cache is valid - Age: 1.8h, Remaining: 22.2h
+2025-09-19 10:43:10,838 - utils.config - INFO - Cache hit for surl: 1bEQ7FfUlCoeVXeDr6BTBxQ - File: teraboxlink_1bEQ7FfUlCoeVXeDr6BTBxQ.json
+2025-09-19 10:43:10,838 - utils.config - INFO - Returning cached response for URL: https://1024terabox.com/s/1bEQ7FfUlCoeVXeDr6BTBxQ
+2025-09-19 10:43:13,435 - utils.config - INFO - API key format validation passed: API key format is valid
+2025-09-19 10:43:13,621 - utils.config - INFO - Opened URL in default browser: https://kul-ddata.1024tera.com/file/aeb0fadba1bb32...
+2025-09-19 10:43:34,030 - utils.config - INFO - API key format validation passed: API key format is valid
+2025-09-19 10:43:34,220 - utils.config - INFO - API key format validation passed: API key format is valid
+2025-09-19 10:43:34,283 - utils.config - INFO - Getting file info via RapidAPI for: https://terasharelink.com/s/1TPGrdIbJiH6VH6KNVeWm3w
+2025-09-19 10:43:34,283 - utils.config - INFO - Extracted surl: 1TPGrdIbJiH6VH6KNVeWm3w from URL: https://terasharelink.com/s/1TPGrdIbJiH6VH6KNVeWm3w
+2025-09-19 10:43:34,284 - utils.config - INFO - No cache file found for surl: 1TPGrdIbJiH6VH6KNVeWm3w
+2025-09-19 10:43:34,285 - utils.config - INFO - Normalized URL: https://terasharelink.com/s/1TPGrdIbJiH6VH6KNVeWm3w
+2025-09-19 10:43:34,342 - utils.config - INFO - RapidAPI response status: 429
+2025-09-19 10:43:50,711 - utils.config - INFO - API key format validation passed: API key format is valid
+2025-09-19 10:43:50,783 - utils.config - INFO - Getting file info via RapidAPI for: https://terasharelink.com/s/1TPGrdIbJiH6VH6KNVeWm3w
+2025-09-19 10:43:50,783 - utils.config - INFO - Extracted surl: 1TPGrdIbJiH6VH6KNVeWm3w from URL: https://terasharelink.com/s/1TPGrdIbJiH6VH6KNVeWm3w
+2025-09-19 10:43:50,784 - utils.config - INFO - No cache file found for surl: 1TPGrdIbJiH6VH6KNVeWm3w
+2025-09-19 10:43:50,784 - utils.config - INFO - Normalized URL: https://terasharelink.com/s/1TPGrdIbJiH6VH6KNVeWm3w
+2025-09-19 10:43:50,844 - utils.config - INFO - RapidAPI response status: 429
+2025-09-19 10:49:36,404 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:49:36,405 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:49:43,807 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:49:43,809 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:49:47,084 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:49:47,084 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:49:47,092 - utils.config - INFO - TeraBox Cache Manager initialized - Directory: output/sessions, TTL: 24h
+2025-09-19 10:49:47,092 - utils.config - INFO - RapidAPI client initialized with caching enabled
+2025-09-19 10:49:47,093 - utils.config - INFO - API key format validation passed: API key format is valid
+2025-09-19 10:49:57,853 - utils.config - INFO - API key format validation passed: API key format is valid
+2025-09-19 10:50:34,962 - utils.config - INFO - API key format validation passed: API key format is valid
+2025-09-19 10:50:45,888 - utils.config - INFO - Getting file info via RapidAPI for: https://terasharelink.com/s/1TPGrdIbJiH6VH6KNVeWm3w
+2025-09-19 10:50:45,888 - utils.config - INFO - Extracted surl: 1TPGrdIbJiH6VH6KNVeWm3w from URL: https://terasharelink.com/s/1TPGrdIbJiH6VH6KNVeWm3w
+2025-09-19 10:50:45,889 - utils.config - INFO - No cache file found for surl: 1TPGrdIbJiH6VH6KNVeWm3w
+2025-09-19 10:50:45,889 - utils.config - INFO - Normalized URL: https://terasharelink.com/s/1TPGrdIbJiH6VH6KNVeWm3w
+2025-09-19 10:51:16,542 - utils.config - ERROR - Error in get_file_info - timeout: Exception: Timeout
