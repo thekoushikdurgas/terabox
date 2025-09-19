@@ -1,0 +1,104 @@
+# TeraDL Streamlit - Installation and Usage Commands
+
+# === INSTALLATION ===
+
+# 1. Install Python dependencies
+pip install -r requirements.txt
+
+# 2. Alternative installation (if requirements.txt fails)
+pip install streamlit requests cloudscraper typing-extensions urllib3 certifi
+
+# === RUNNING THE APPLICATION ===
+
+# Method 1: Direct Streamlit command
+streamlit run app.py
+
+# Method 2: Using Python module
+python -m streamlit run app.py
+
+# Method 3: Using the launcher script (recommended)
+python run_teradl.py
+
+# Method 4: Custom port
+streamlit run app.py --server.port 8502
+
+# === DEVELOPMENT COMMANDS ===
+
+# Run with debug mode
+streamlit run app.py --logger.level debug
+
+# Run with specific theme
+streamlit run app.py --theme.base light
+
+# Clear Streamlit cache
+streamlit cache clear
+
+# === TESTING ===
+
+# Test TeraBox core functionality
+python -c "from terabox_core import TeraboxCore; tb = TeraboxCore(); print('TeraBox core loaded successfully')"
+
+# Test configuration
+python -c "from config import config; print(f'Config loaded: {config.DEFAULT_MODE}')"
+
+# === CLEANUP COMMANDS ===
+
+# Remove Python cache files
+python3 -Bc "import pathlib; [p.unlink() for p in pathlib.Path('.').rglob('*.py[co]')]"
+python3 -Bc "import pathlib; [p.rmdir() for p in pathlib.Path('.').rglob('__pycache__')]"
+
+# Remove logs
+rm -f teradl.log
+
+# === USEFUL DEVELOPMENT COMMANDS ===
+
+# Check installed packages
+pip list | grep -E "(streamlit|requests|cloudscraper)"
+
+# Update packages
+pip install --upgrade streamlit requests cloudscraper
+
+# Check Streamlit version
+streamlit version
+
+# View Streamlit configuration
+streamlit config show
+
+# === DEPLOYMENT ===
+
+# For production deployment
+pip install --no-cache-dir -r requirements.txt
+streamlit run app.py --server.address 0.0.0.0 --server.port 8501
+
+# === TROUBLESHOOTING ===
+
+# If Streamlit is not found
+python -m pip install streamlit --force-reinstall
+
+# If cloudscraper fails
+pip install cloudscraper --no-cache-dir
+
+# Check Python version (requires 3.8+)
+python --version
+
+
+git init
+git add .
+git commit -m "29-8-2025"
+git remote add origin https://github.com/thekoushikdurgas/terabox.git
+git branch -M main
+git push -u origin main -f
+
+
+git init
+git remote add origin https://github.com/thekoushikdurgas/wanderaipipeline.git
+git branch -M main
+
+
+
+git add .
+git commit -m "10/7/2025"
+git push -u origin main -f
+
+git config --global user.email "koushik.btech.cse.19@nitap.ac.in"
+git config --global user.name "thekoushikdurgas"
